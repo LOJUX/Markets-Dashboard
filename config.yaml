@@ -1,0 +1,240 @@
+# Global markets dashboard configuration.
+# Add or remove a ticker by adding/removing an entry under `series`.
+# Each series tries its `sources` in order; the first that returns data wins.
+#
+# Source types:
+#   yahoo   - Yahoo Finance via yfinance, symbol = Yahoo ticker
+#   cnbc    - CNBC quote/chart API (no key), symbol = CNBC symbol (e.g. IE10Y-IE)
+#   fred    - FRED API (needs FRED_API_KEY), symbol = FRED series id
+#   boe     - Bank of England database, symbol = series code
+#   bundesbank - Bundesbank time-series API, symbol = series key
+#   mof     - Japan Ministry of Finance JGB curve CSV, symbol = tenor column (e.g. 10Y)
+#
+# kind: price (changes in %) or yield (changes in basis points)
+# close: when the instrument's daily session ends ("HH:MM Area/City"). A bar dated
+#        today is ignored until this time has passed, so partial days never
+#        enter the history.
+# mover_pct / mover_bp: optional override of the fixed "big mover" threshold.
+
+timezone: Europe/Dublin
+
+paths:
+  history: data/history.csv
+  calendar_state: data/calendar_state.json
+  summary_cache: data/summary_cache.json   # last Claude summary, reused while nothing material changes
+  central_banks: central_banks.yaml
+  output: site/index.html
+
+history:
+  backfill_days: 400        # first run (or a new series): ~1y plus room for YTD
+  incremental_period: 1mo   # later runs re-fetch the last month and upsert
+  min_points_for_incremental: 200
+
+movers:
+  sigma: 2.0                # flag if |1d move| > sigma x stdev of own 1y daily moves
+  thresholds:               # ...or if it passes these fixed thresholds
+    equities: 2.0           # %
+    commodities: 2.0        # %
+    fx: 1.0                 # %
+    yields: 10              # bp
+
+stale_after_business_days: 1   # tolerated gap beyond the latest completed session
+
+# Matches .github/workflows/update.yml. The page warns readers when it is older
+# than stale_after_minutes inside the window, and reloads itself while open.
+refresh:
+  every_minutes: 15
+  start_hour: 6       # Dublin, weekdays
+  end_hour: 23
+  stale_after_minutes: 45
+
+groups:
+  yields: {title: Government bond yields, kind: yield}
+  fx: {title: Currencies, kind: price}
+  commodities: {title: Commodities, kind: price}
+  equities: {title: Equities, kind: price}
+
+series:
+  # ---------------- Government bond yields ----------------
+  - {id: US2Y,  name: US 2Y,      group: yields, region: US, close: "17:00 America/New_York",
+     sources: [{type: cnbc, symbol: US2Y}, {type: fred, symbol: DGS2}]}
+  - {id: US10Y, name: US 10Y,     group: yields, region: US, close: "17:00 America/New_York",
+     sources: [{type: yahoo, symbol: "^TNX"}, {type: cnbc, symbol: US10Y}, {type: fred, symbol: DGS10}]}
+  - {id: US30Y, name: US 30Y,     group: yields, region: US, close: "17:00 America/New_York",
+     sources: [{type: yahoo, symbol: "^TYX"}, {type: cnbc, symbol: US30Y}, {type: fred, symbol: DGS30}]}
+  - {id: DE10Y, name: Germany 10Y, group: yields, region: Europe, close: "17:30 Europe/Berlin",
+     sources: [{type: cnbc, symbol: DE10Y-DE}]}
+  - {id: GB10Y, name: UK 10Y,     group: yields, region: Europe, close: "17:30 Europe/London",
+     sources: [{type: cnbc, symbol: GB10Y-GB}, {type: boe, symbol: IUDMNPY}]}
+  - {id: FR10Y, name: France 10Y, group: yields, region: Europe, close: "17:30 Europe/Paris",
+     sources: [{type: cnbc, symbol: FR10Y-FR}]}
+  - {id: IT10Y, name: Italy 10Y,  group: yields, region: Europe, close: "17:30 Europe/Rome",
+     sources: [{type: cnbc, symbol: IT10Y-IT}]}
+  - {id: IE10Y, name: Ireland 10Y, group: yields, region: Europe, close: "17:30 Europe/Dublin",
+     sources: [{type: cnbc, symbol: IE10Y-IE}]}
+  - {id: JP10Y, name: Japan 10Y,  group: yields, region: Asia, close: "15:00 Asia/Tokyo",
+     sources: [{type: cnbc, symbol: JP10Y-JP}, {type: mof, symbol: 10Y}]}
+
+  # ---------------- Currencies ----------------
+  - {id: EURUSD, name: EUR/USD, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: EURUSD=X}]}
+  - {id: GBPUSD, name: GBP/USD, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: GBPUSD=X}]}
+  - {id: EURGBP, name: EUR/GBP, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: EURGBP=X}]}
+  - {id: USDJPY, name: USD/JPY, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: JPY=X}]}
+  - {id: USDCHF, name: USD/CHF, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: CHF=X}]}
+  - {id: AUDUSD, name: AUD/USD, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: AUDUSD=X}]}
+  - {id: USDCAD, name: USD/CAD, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: CAD=X}]}
+  - {id: USDCNY, name: USD/CNY, group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: CNY=X}]}
+  - {id: DXY,    name: Dollar index (DXY), group: fx, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: DX-Y.NYB}]}
+
+  # ---------------- Commodities ----------------
+  - {id: BRENT,  name: Brent crude, unit: "$/bbl", group: commodities, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: BZ=F}]}
+  - {id: WTI,    name: WTI crude,   unit: "$/bbl", group: commodities, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: CL=F}]}
+  - {id: NATGAS, name: US natural gas (Henry Hub), unit: "$/MMBtu", group: commodities, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: NG=F}]}
+  # Yahoo only returns the latest TTF bar (no history), so TTF history builds up
+  # one day at a time from the first run; changes show "n/a" until enough exists.
+  - {id: TTF,    name: Dutch TTF gas, unit: "€/MWh", group: commodities, close: "18:00 Europe/Amsterdam", sources: [{type: yahoo, symbol: TTF=F}]}
+  - {id: GOLD,   name: Gold,   unit: "$/oz", group: commodities, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: GC=F}]}
+  - {id: SILVER, name: Silver, unit: "$/oz", group: commodities, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: SI=F}]}
+  - {id: COPPER, name: Copper, unit: "$/lb", group: commodities, close: "17:00 America/New_York", sources: [{type: yahoo, symbol: HG=F}]}
+  - {id: WHEAT,  name: Wheat,  unit: "¢/bu", group: commodities, close: "14:20 America/Chicago", sources: [{type: yahoo, symbol: ZW=F}]}
+  - {id: BTC,    name: Bitcoin, unit: "$", group: commodities, close: "23:59 UTC", weekends: true, mover_pct: 5.0, sources: [{type: yahoo, symbol: BTC-USD}]}
+
+  # ---------------- Equities ----------------
+  - {id: SPX,    name: S&P 500,      group: equities, region: Americas, close: "16:00 America/New_York", sources: [{type: yahoo, symbol: "^GSPC"}]}
+  - {id: NDX,    name: Nasdaq Composite, group: equities, region: Americas, close: "16:00 America/New_York", sources: [{type: yahoo, symbol: "^IXIC"}]}
+  - {id: DJI,    name: Dow Jones,    group: equities, region: Americas, close: "16:00 America/New_York", sources: [{type: yahoo, symbol: "^DJI"}]}
+  - {id: RUT,    name: Russell 2000, group: equities, region: Americas, close: "16:00 America/New_York", sources: [{type: yahoo, symbol: "^RUT"}]}
+  - {id: SXXP,   name: STOXX 600,    group: equities, region: Europe, close: "17:30 Europe/Berlin", sources: [{type: yahoo, symbol: "^STOXX"}]}
+  - {id: SX5E,   name: Euro Stoxx 50, group: equities, region: Europe, close: "17:30 Europe/Berlin", sources: [{type: yahoo, symbol: "^STOXX50E"}]}
+  - {id: UKX,    name: FTSE 100,     group: equities, region: Europe, close: "16:30 Europe/London", sources: [{type: yahoo, symbol: "^FTSE"}]}
+  - {id: DAX,    name: DAX,          group: equities, region: Europe, close: "17:30 Europe/Berlin", sources: [{type: yahoo, symbol: "^GDAXI"}]}
+  - {id: CAC,    name: CAC 40,       group: equities, region: Europe, close: "17:30 Europe/Paris", sources: [{type: yahoo, symbol: "^FCHI"}]}
+  - {id: ISEQ,   name: ISEQ All-Share, group: equities, region: Europe, close: "16:30 Europe/Dublin", sources: [{type: yahoo, symbol: "^ISEQ"}]}
+  - {id: NKY,    name: Nikkei 225,   group: equities, region: Asia-Pacific, close: "15:30 Asia/Tokyo", sources: [{type: yahoo, symbol: "^N225"}]}
+  - {id: HSI,    name: Hang Seng,    group: equities, region: Asia-Pacific, close: "16:10 Asia/Hong_Kong", sources: [{type: yahoo, symbol: "^HSI"}]}
+  - {id: SHCOMP, name: Shanghai Composite, group: equities, region: Asia-Pacific, close: "15:00 Asia/Shanghai", sources: [{type: yahoo, symbol: 000001.SS}]}
+  - {id: KOSPI,  name: Kospi,        group: equities, region: Asia-Pacific, close: "15:30 Asia/Seoul", sources: [{type: yahoo, symbol: "^KS11"}]}
+  - {id: AS51,   name: ASX 200,      group: equities, region: Asia-Pacific, close: "16:10 Australia/Sydney", sources: [{type: yahoo, symbol: "^AXJO"}]}
+  - {id: NIFTY,  name: Nifty 50,     group: equities, region: Asia-Pacific, close: "15:30 Asia/Kolkata", sources: [{type: yahoo, symbol: "^NSEI"}]}
+  # VIX routinely moves 5-10% a day, so a 2% fixed threshold would flag it daily.
+  - {id: VIX,    name: VIX,          group: equities, region: Volatility, close: "16:15 America/New_York", mover_pct: 10.0, sources: [{type: yahoo, symbol: "^VIX"}]}
+
+# Independent official sources compared against the displayed value on the
+# latest common date. Disagreements beyond the tolerance are listed on the page.
+cross_checks:
+  - {series: US2Y,  source: {type: fred, symbol: DGS2},  tolerance_bp: 6,  note: "FRED H.15 constant maturity"}
+  - {series: US10Y, source: {type: fred, symbol: DGS10}, tolerance_bp: 6,  note: "FRED H.15 constant maturity"}
+  - {series: DE10Y, source: {type: bundesbank, symbol: "BBSIS/D.I.ZST.ZI.EUR.S1311.B.A604.R10XX.R.A.A._Z._Z.A"}, tolerance_bp: 15, note: "Bundesbank Svensson zero-coupon 10Y (methodology differs from benchmark bond)"}
+  - {series: GB10Y, source: {type: boe, symbol: IUDMNPY}, tolerance_bp: 15, note: "BoE nominal par yield 10Y (methodology differs from benchmark gilt)"}
+  - {series: JP10Y, source: {type: mof, symbol: 10Y}, tolerance_bp: 5, note: "Japan MoF JGB curve"}
+
+# ---------------------------------------------------------------------------
+# Economic calendar
+# ---------------------------------------------------------------------------
+calendar:
+  lookback_days: 4
+  lookahead_days: 21
+  keep_released_days: 3
+  countdown_days: 7
+  countdown_count: 5
+  amber_hours: 48
+  # TradingView country codes queried (CA/CH/NZ are only used for their central banks)
+  countries: [US, EU, GB, IE, JP, CN, AU, CA, CH, NZ]
+  # Default "asset that matters most" per country (series ids from above)
+  reaction_defaults:
+    US: [US2Y, DXY]
+    EU: [EURUSD, DE10Y]
+    GB: [GBPUSD, GB10Y]
+    IE: [EURUSD, IE10Y]
+    JP: [USDJPY, JP10Y]
+    CN: [USDCNY, SHCOMP]
+    AU: [AUDUSD, AS51]
+    CA: [USDCAD]
+    CH: [USDCHF]
+    NZ: [AUDUSD]
+  # `match` is a regex against the TradingView event title (country must match).
+  # `ff` is the Forex Factory title used to cross-check the time and fill a
+  # missing consensus. `fred_release` is a FRED release id used to cross-check
+  # the date (only when FRED_API_KEY is set).
+  releases:
+    # --- US ---
+    - {id: us_nfp,    country: US, category: Jobs, name: Nonfarm payrolls, short: NFP, match: "^Non Farm Payrolls$", ff: "Non-Farm Employment Change", fred_release: 50}
+    - {id: us_unemp,  country: US, category: Jobs, name: Unemployment rate, short: US unemp., match: "^Unemployment Rate$", ff: "Unemployment Rate", fred_release: 50}
+    - {id: us_jolts,  country: US, category: Jobs, name: JOLTS job openings, short: JOLTS, match: "^JOLTs Job Openings$", ff: "JOLTS Job Openings", fred_release: 192}
+    - {id: us_claims, country: US, category: Jobs, name: Initial jobless claims, short: Claims, match: "^Initial Jobless Claims$", ff: "Unemployment Claims", fred_release: 180}
+    - {id: us_cpi,    country: US, category: Inflation, name: CPI y/y, short: US CPI, match: "^Inflation Rate YoY$", ff: "CPI y/y", fred_release: 10}
+    - {id: us_ccpi,   country: US, category: Inflation, name: Core CPI m/m, short: Core CPI, match: "^Core Inflation Rate MoM$", ff: "Core CPI m/m", fred_release: 10}
+    - {id: us_pce,    country: US, category: Inflation, name: PCE price index y/y, short: PCE, match: "^PCE Price Index YoY$", fred_release: 54}
+    - {id: us_cpce,   country: US, category: Inflation, name: Core PCE m/m, short: Core PCE, match: "^Core PCE Price Index MoM$", ff: "Core PCE Price Index m/m", fred_release: 54}
+    - {id: us_gdp,    country: US, category: Growth, name: GDP q/q (advance), short: US GDP, match: "^GDP Growth Rate QoQ Adv$", ff: "Advance GDP q/q", fred_release: 53}
+    - {id: us_ism_m,  country: US, category: Growth, name: ISM manufacturing PMI, short: ISM mfg, match: "^ISM Manufacturing PMI$", ff: "ISM Manufacturing PMI"}
+    - {id: us_ism_s,  country: US, category: Growth, name: ISM services PMI, short: ISM svcs, match: "^ISM Services PMI$", ff: "ISM Services PMI"}
+    - {id: us_pmi_m,  country: US, category: Growth, name: S&P Global manufacturing PMI (flash), short: US PMI, match: "^S&P Global Manufacturing PMI Flash$", ff: "Flash Manufacturing PMI"}
+    - {id: us_retail, country: US, category: Growth, name: Retail sales m/m, short: US retail, match: "^Retail Sales MoM$", ff: "Retail Sales m/m", fred_release: 9}
+    # --- Euro area ---
+    - {id: ea_hicp,   country: EU, category: Inflation, name: HICP flash y/y, short: EA HICP, match: "^Inflation Rate YoY Flash$", ff: "CPI Flash Estimate y/y"}
+    - {id: ea_chicp,  country: EU, category: Inflation, name: Core HICP flash y/y, short: EA core HICP, match: "^Core Inflation Rate YoY Flash$", ff: "Core CPI Flash Estimate y/y"}
+    - {id: ea_unemp,  country: EU, category: Jobs, name: Unemployment rate, short: EA unemp., match: "^Unemployment Rate$", ff: "Unemployment Rate"}
+    - {id: ea_gdp,    country: EU, category: Growth, name: GDP q/q (flash), short: EA GDP, match: "^GDP Growth Rate QoQ Flash$", ff: "Prelim Flash GDP q/q"}
+    - {id: ea_pmi_m,  country: EU, category: Growth, name: Manufacturing PMI (flash), short: EA PMI, match: "^(HCOB|S&P Global) Manufacturing PMI Flash$"}
+    - {id: ea_retail, country: EU, category: Growth, name: Retail sales m/m, short: EA retail, match: "^Retail Sales MoM$"}
+    # --- UK ---
+    - {id: uk_unemp,  country: GB, category: Jobs, name: Labour market - unemployment rate, short: UK jobs, match: "^Unemployment Rate$", ff: "Unemployment Rate"}
+    - {id: uk_wages,  country: GB, category: Jobs, name: Average earnings incl. bonus, short: UK wages, match: "^Average Earnings incl\\. Bonus \\(3Mo/Yr\\)$", ff: "Average Earnings Index 3m/y"}
+    - {id: uk_cpi,    country: GB, category: Inflation, name: CPI y/y, short: UK CPI, match: "^Inflation Rate YoY$", ff: "CPI y/y"}
+    - {id: uk_ccpi,   country: GB, category: Inflation, name: Core CPI y/y, short: UK core CPI, match: "^Core Inflation Rate YoY$"}
+    - {id: uk_gdp,    country: GB, category: Growth, name: GDP q/q (prelim), short: UK GDP, match: "^GDP Growth Rate QoQ Prel$", ff: "Prelim GDP q/q"}
+    - {id: uk_gdpm,   country: GB, category: Growth, name: GDP m/m, short: UK GDP m/m, match: "^GDP MoM$", ff: "GDP m/m"}
+    - {id: uk_pmi_m,  country: GB, category: Growth, name: Manufacturing PMI (flash), short: UK PMI, match: "^S&P Global Manufacturing PMI Flash$", ff: "Flash Manufacturing PMI"}
+    - {id: uk_retail, country: GB, category: Growth, name: Retail sales m/m, short: UK retail, match: "^Retail Sales MoM$", ff: "Retail Sales m/m"}
+    # --- Ireland (HICP flash comes from CSO directly; see dashboard/econ_calendar.py) ---
+    - {id: ie_hicp,   country: IE, category: Inflation, name: HICP flash y/y, short: IE HICP, source: cso}
+    # --- Japan ---
+    - {id: jp_cpi,    country: JP, category: Inflation, name: CPI y/y, short: JP CPI, match: "^Inflation Rate YoY$", ff: "National Core CPI y/y"}
+    - {id: jp_ccpi,   country: JP, category: Inflation, name: Core CPI y/y, short: JP core CPI, match: "^Core Inflation Rate YoY$"}
+    - {id: jp_unemp,  country: JP, category: Jobs, name: Unemployment rate, short: JP unemp., match: "^Unemployment Rate$"}
+    - {id: jp_gdp,    country: JP, category: Growth, name: GDP q/q (prelim), short: JP GDP, match: "^GDP Growth Rate QoQ Prel$", ff: "Prelim GDP q/q"}
+    - {id: jp_pmi_m,  country: JP, category: Growth, name: Manufacturing PMI (flash), short: JP PMI, match: "^S&P Global Manufacturing PMI Flash$"}
+    - {id: jp_retail, country: JP, category: Growth, name: Retail sales y/y, short: JP retail, match: "^Retail Sales YoY$"}
+    # --- China ---
+    - {id: cn_cpi,    country: CN, category: Inflation, name: CPI y/y, short: CN CPI, match: "^Inflation Rate YoY$", ff: "CPI y/y"}
+    - {id: cn_pmi,    country: CN, category: Growth, name: NBS manufacturing PMI, short: CN PMI, match: "^NBS Manufacturing PMI$", ff: "Manufacturing PMI"}
+    - {id: cn_pmi2,   country: CN, category: Growth, name: RatingDog manufacturing PMI, short: CN PMI (RD), match: "^RatingDog Manufacturing PMI$"}
+    - {id: cn_gdp,    country: CN, category: Growth, name: GDP y/y, short: CN GDP, match: "^GDP Growth Rate YoY$", ff: "GDP q/y"}
+    - {id: cn_retail, country: CN, category: Growth, name: Retail sales y/y, short: CN retail, match: "^Retail Sales YoY$"}
+    # --- Australia ---
+    - {id: au_unemp,  country: AU, category: Jobs, name: Unemployment rate, short: AU unemp., match: "^Unemployment Rate$", ff: "Unemployment Rate"}
+    - {id: au_emp,    country: AU, category: Jobs, name: Employment change, short: AU jobs, match: "^Employment Change$", ff: "Employment Change"}
+    - {id: au_cpi,    country: AU, category: Inflation, name: Monthly CPI y/y, short: AU CPI, match: "^Inflation Rate YoY$"}
+    - {id: au_qcpi,   country: AU, category: Inflation, name: Quarterly CPI y/y, short: AU qtr CPI, match: "^Quarterly Inflation Rate YoY$", ff: "CPI q/q"}
+    - {id: au_gdp,    country: AU, category: Growth, name: GDP q/q, short: AU GDP, match: "^GDP Growth Rate QoQ$", ff: "GDP q/q"}
+    - {id: au_retail, country: AU, category: Growth, name: Retail sales m/m, short: AU retail, match: "^Retail Sales MoM$", ff: "Retail Sales m/m"}
+
+# ---------------------------------------------------------------------------
+# News
+# ---------------------------------------------------------------------------
+news:
+  max_items: 15
+  show: 8                   # headlines shown on the page
+  min_items: 10
+  max_per_source: 4
+  hours: 24
+  feeds:
+    - {name: CNBC Economy, url: "https://www.cnbc.com/id/20910258/device/rss/rss.html"}
+    - {name: CNBC Markets, url: "https://www.cnbc.com/id/15839069/device/rss/rss.html"}
+    - {name: CNBC Finance, url: "https://www.cnbc.com/id/10000664/device/rss/rss.html"}
+    - {name: FT Markets, url: "https://www.ft.com/markets?format=rss"}
+    - {name: FT Global Economy, url: "https://www.ft.com/global-economy?format=rss"}
+    - {name: BBC Business, url: "https://feeds.bbci.co.uk/news/business/rss.xml"}
+    - {name: MarketWatch, url: "https://feeds.content.dowjones.io/public/rss/mw_topstories"}
+    - {name: Guardian Business, url: "https://www.theguardian.com/uk/business/rss"}
+    - {name: RTÉ Business, url: "https://www.rte.ie/feeds/rss/?index=/news/business/"}
+    - {name: Federal Reserve, url: "https://www.federalreserve.gov/feeds/press_all.xml", category: Central banks}
+    - {name: ECB, url: "https://www.ecb.europa.eu/rss/press.html", category: Central banks}
+    - {name: Bank of England, url: "https://www.bankofengland.co.uk/rss/news", category: Central banks}
+  categories:   # first match wins; checked against title + summary
+    Central banks: "\\b(fed|federal reserve|fomc|powell|ecb|lagarde|bank of england|boe|bailey|bank of japan|boj|ueda|rba|pboc|snb|central bank|rate cut|rate hike|interest rates?|monetary policy)\\b"
+    Macro data: "\\b(inflation|cpi|pce|hicp|gdp|payrolls?|jobs report|unemployment|jobless|pmi|retail sales|recession|economy|economic|wages|job openings|consumer (confidence|sentiment)|growth)\\b"
+    Commodities: "\\b(oil|crude|brent|wti|opec|gas|lng|gold|silver|copper|wheat|commodit|bitcoin|crypto)\\w*"
+    Geopolitics: "\\b(tariffs?|trade war|sanctions?|war|ukraine|russia|china|israel|iran|gaza|election|white house|trump|putin|xi|nato|brexit|eu summit|geopolitic)\\w*"
+    Companies: "\\b(shares|stock|earnings|profit|revenue|ipo|merger|acquisition|deal|ceo|layoffs?|results|quarter|inc|plc|ltd|bank|airline|retailer)\\b"

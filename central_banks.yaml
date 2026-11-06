@@ -1,0 +1,123 @@
+# Central banks: the ONE place meeting dates live.
+# The economic calendar builds its rate-decision entries from these dates, and
+# the rates table shows the next meeting from the same list.
+#
+# Update `last_reviewed` whenever you check this file. The dashboard shows a
+# warning once it is more than 60 days old.
+#
+# rate_source:
+#   fred_range  - FRED target range (needs FRED_API_KEY), falls back to the NY Fed API
+#   ecb         - ECB Data Portal (deposit facility rate)
+#   boe         - Bank of England database (Bank Rate)
+#   snb         - SNB data portal (SNB policy rate)
+#   boc         - Bank of Canada Valet API (target overnight rate)
+#   manual      - no clean free API; fill in `manual:` below by hand
+#                 (RBA's statistics site blocks automated downloads)
+#
+# Each bank's latest decision is also cross-checked against the TradingView
+# calendar; if they disagree the page shows a warning on that row.
+
+last_reviewed: 2026-11-03
+
+banks:
+  - id: fed
+    name: Federal Reserve
+    short: Fed
+    country: US
+    rate_label: Fed funds target (upper)
+    rate_source: fred_range
+    decision_time: "14:00 America/New_York"
+    calendar_match: "^Interest Rate$"
+    ff: "Federal Funds Rate"
+    minutes_rule: {days_after: 21, time: "14:00 America/New_York"}   # FOMC minutes: 3 weeks after
+    meetings: [2026-01-28, 2026-03-18, 2026-04-29, 2026-06-17, 2026-07-29, 2026-09-16, 2026-10-28, 2026-12-09]
+
+  - id: ecb
+    name: European Central Bank
+    short: ECB
+    country: EU
+    rate_label: Deposit facility rate
+    rate_source: ecb
+    decision_time: "14:15 Europe/Berlin"
+    calendar_match: "^Deposit Facility Rate$"
+    ff: "Main Refinancing Rate"
+    meetings: [2026-02-05, 2026-03-19, 2026-04-30, 2026-06-11, 2026-07-23, 2026-09-10, 2026-10-29, 2026-12-17]
+
+  - id: boe
+    name: Bank of England
+    short: BoE
+    country: GB
+    rate_label: Bank Rate
+    rate_source: boe
+    decision_time: "12:00 Europe/London"
+    calendar_match: "^(BoE )?Interest Rate( Decision)?$"
+    ff: "Official Bank Rate"
+    meetings: [2026-02-05, 2026-03-19, 2026-04-30, 2026-06-18, 2026-07-30, 2026-09-17, 2026-11-05, 2026-12-17]
+
+  - id: boj
+    name: Bank of Japan
+    short: BoJ
+    country: JP
+    rate_label: Policy rate
+    rate_source: manual
+    decision_time: "12:00 Asia/Tokyo"   # BoJ has no fixed release time; TradingView time is used when listed
+    calendar_match: "^Interest Rate$"
+    ff: "BOJ Policy Rate"
+    manual: {rate: 1.25, last_change: 2026-09-18, last_change_bp: 25}
+    meetings: [2026-01-23, 2026-03-19, 2026-04-28, 2026-06-16, 2026-07-31, 2026-09-18, 2026-10-30, 2026-12-18]
+
+  - id: snb
+    name: Swiss National Bank
+    short: SNB
+    country: CH
+    rate_label: SNB policy rate
+    rate_source: snb
+    decision_time: "09:30 Europe/Zurich"
+    calendar_match: "^SNB Interest Rate Decision$"
+    meetings: [2026-03-19, 2026-06-18, 2026-09-24, 2026-12-10]
+
+  - id: boc
+    name: Bank of Canada
+    short: BoC
+    country: CA
+    rate_label: Target overnight rate
+    rate_source: boc
+    decision_time: "09:45 America/Toronto"
+    calendar_match: "^BoC Interest Rate Decision$"
+    meetings: [2026-01-28, 2026-03-18, 2026-04-29, 2026-06-10, 2026-07-15, 2026-09-02, 2026-10-28, 2026-12-09]
+
+  - id: rba
+    name: Reserve Bank of Australia
+    short: RBA
+    country: AU
+    rate_label: Cash rate target
+    rate_source: manual
+    decision_time: "14:30 Australia/Sydney"
+    calendar_match: "^RBA Interest Rate Decision$"
+    ff: "Cash Rate"
+    minutes_rule: {days_after: 14, time: "11:30 Australia/Sydney"}   # RBA minutes: 2 weeks after
+    manual: {rate: 4.85, last_change: 2026-11-03, last_change_bp: 25}
+    meetings: [2026-02-03, 2026-03-17, 2026-05-05, 2026-06-16, 2026-08-11, 2026-09-29, 2026-11-03, 2026-12-08]
+
+  - id: rbnz
+    name: Reserve Bank of New Zealand
+    short: RBNZ
+    country: NZ
+    rate_label: Official cash rate
+    rate_source: manual
+    decision_time: "14:00 Pacific/Auckland"
+    calendar_match: "^RBNZ Interest Rate Decision$"
+    manual: {rate: 2.75, last_change: 2026-09-02, last_change_bp: 25}
+    meetings: [2026-02-18, 2026-04-08, 2026-05-27, 2026-07-08, 2026-09-02, 2026-10-28, 2026-12-09]
+
+  - id: pboc
+    name: People's Bank of China
+    short: PBoC
+    country: CN
+    rate_label: 1Y loan prime rate
+    rate_source: manual
+    decision_time: "09:00 Asia/Shanghai"
+    calendar_match: "^Loan Prime Rate 1Y$"
+    # last_change below is from memory of the May 2025 LPR cut; please verify.
+    manual: {rate: 3.00, last_change: 2025-05-20, last_change_bp: -10}
+    meetings: [2026-11-20, 2026-12-21, 2027-01-20]

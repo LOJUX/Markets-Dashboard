@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Markets Now</title>
+<meta name="description" content="Global markets dashboard refreshed every 15 minutes: unusual moves, rate decisions, data releases and what is coming up. Times in Europe/Dublin.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232a78d6'/%3E%3Cpolyline points='5,22 12,15 18,19 27,8' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f9f9f7;--card:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#77766f;--line:#e4e3de;--line2:#efeee9;
+  --up:#006300;--down:#c23232;--bar-up:#0ca30c;--bar-down:#d03b3b;--spark:#2a78d6;--accent:#2a78d6;
+  --amber-bg:#fff4d6;--amber-line:#e8a200;--red:#d03b3b;--red-bg:#fde8e8;--stale:#9a6b00;--chip:#f0efec;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0d0d;--card:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#97968e;--line:#2e2e2b;--line2:#242422;
+  --up:#3fbf5a;--down:#ef7070;--bar-up:#0ca30c;--bar-down:#d03b3b;--spark:#5598e7;--accent:#5598e7;
+  --amber-bg:#3a2d06;--amber-line:#fab219;--red:#e85a5a;--red-bg:#3d1515;--stale:#f0b84a;--chip:#262624;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0d0d0d;--card:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#97968e;--line:#2e2e2b;--line2:#242422;
+  --up:#3fbf5a;--down:#ef7070;--bar-up:#0ca30c;--bar-down:#d03b3b;--spark:#5598e7;--accent:#5598e7;
+  --amber-bg:#3a2d06;--amber-line:#fab219;--red:#e85a5a;--red-bg:#3d1515;--stale:#f0b84a;--chip:#262624;
+  color-scheme:dark;}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 48px}
+.muted{color:var(--muted)}.small{font-size:12px}.ink2{color:var(--ink2)}
+h1{font-size:22px;margin:0;letter-spacing:-.01em}
+h2{font-size:17px;margin:0 0 10px;letter-spacing:-.01em}
+h3{font-size:13px;margin:14px 0 6px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+/* countdown strip */
+#strip{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0}
+#strip .inner{max-width:1180px;margin:0 auto;padding:0 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+#strip .inner::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;white-space:nowrap}
+.chip b{font-weight:600}.chip .cd{color:var(--ink2);margin-left:4px}
+.chip.amber{background:var(--amber-bg);border-color:var(--amber-line)}
+.chip.today{background:var(--red-bg);border-color:var(--red)}
+.strip-label{flex:0 0 auto;font-size:12px;color:var(--muted);align-self:center;text-transform:uppercase;letter-spacing:.06em}
+header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-top:16px}
+.theme-btn{background:var(--chip);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer}
+.warn{background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:10px;padding:8px 12px;margin:10px 0;font-size:13px}
+/* badges */
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;border-radius:5px;padding:2px 6px}
+.badge.red{background:var(--red);color:#fff}
+.badge.amber{background:var(--amber-line);color:#1a1300}
+.badge.stale{background:transparent;border:1px solid var(--stale);color:var(--stale);font-weight:600}
+/* summary */
+.summary p{margin:4px 0;font-size:16px}
+/* movers */
+.movers{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.mover{border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:10px;padding:10px 12px;background:var(--bg)}
+.mover.up{border-left-color:var(--bar-up)}.mover.down{border-left-color:var(--bar-down)}.mover.neutral{border-left-color:var(--spark)}
+.mover .nm{font-size:13px;color:var(--ink2)}.mover .lv{font-size:19px;font-weight:600}
+.mover .why{font-size:12px;color:var(--muted)}
+/* tables */
+.tbl{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:right;font-weight:600;font-size:12px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.l,th.l{text-align:left}
+tr:last-child td{border-bottom:0}
+.up{color:var(--up)}.down{color:var(--down)}.flat,.neutral{color:var(--ink)}.na{color:var(--muted)}
+.spark{color:var(--spark);vertical-align:middle}
+.name-btn{background:none;border:0;padding:0;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.name-btn:hover{color:var(--accent)}
+.stale-row td{opacity:.75}
+[data-tip]{cursor:help}
+/* movers */
+.mover .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.mover .mv{font-size:15px;font-weight:600}
+.mover .spark{display:block;margin-top:4px;width:100%;height:28px}
+.near{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+/* what changed */
+.decision{border:1px solid var(--accent);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px;margin:0 0 10px;background:var(--bg)}
+.decision .big{font-size:18px;font-weight:600}
+.cal tr.amber td{background:var(--amber-bg)}
+.cal tr.today td{background:var(--red-bg)}
+.cal td.when{font-weight:600}
+.cal .cd{color:var(--ink2);font-size:13px}
+.react{font-size:12px;color:var(--ink2);white-space:normal;min-width:160px}
+.surprise-big{font-weight:600}
+/* collapsible sections */
+details.box{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:14px 0}
+details.box>summary{cursor:pointer;padding:14px 16px;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+details.box>summary::-webkit-details-marker{display:none}
+details.box>summary h2{margin:0;display:inline}
+details.box>summary h2::before{content:"▸ ";color:var(--muted)}
+details.box[open]>summary h2::before{content:"▾ "}
+details.box .body{padding:0 16px 16px}
+details.warn{padding:0}
+details.warn>summary{cursor:pointer;padding:8px 12px}
+details.warn ul{margin:0;padding:0 12px 10px 30px}
+.flag-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber-line);margin-left:6px;vertical-align:middle}
+tr.unusual td{font-weight:600}
+#stale-banner{display:none}
+/* news */
+.news li{margin:0 0 8px;list-style:none}
+.news ul{padding:0;margin:0}
+.news .meta{font-size:12px;color:var(--muted)}
+.tag{font-size:11px;border-radius:5px;padding:1px 6px;margin-right:6px;border:1px solid var(--line);color:var(--ink2)}
+/* tooltip + modal */
+#tip{position:fixed;z-index:50;max-width:320px;background:var(--ink);color:var(--bg);font-size:12px;line-height:1.35;padding:7px 9px;border-radius:7px;pointer-events:none;display:none;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);width:min(760px,94vw);padding:16px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.close-btn{background:var(--chip);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:3px 10px;cursor:pointer}
+.chart-box{position:relative;height:260px}
+footer{font-size:12px;color:var(--muted);margin-top:18px}
+footer table{font-size:12px}
+@media (max-width:600px){
+  body{font-size:14px}.hide-sm{display:none}td,th{padding:6px 5px}
+  .summary p{font-size:15px}
+  .movers{grid-template-columns:1fr 1fr;gap:8px}.mover{padding:8px 9px}.mover .lv{font-size:16px}.mover .mv{font-size:13px}
+}
+</style>
+</head>
+<body>
+{% macro move(it) -%}
+<span class="{{ it.chg_1d|chgcls(it.is_yield) }}">{{ it.chg_1d|arrow if not it.is_yield }} {{ it.chg_1d|chg(it.is_yield) }}</span>
+{%- endmacro %}
+
+{% macro row(it) -%}
+<tr class="{{ 'stale-row' if it.stale or not it.available }}{{ ' unusual' if it.mover }}">
+  <td class="l">{% if it.chart is defined and it.chart %}<button class="name-btn" type="button" data-series="{{ it.id }}">{{ it.name }}</button>{% else %}{{ it.name }}{% endif %}{% if it.mover %}<span class="flag-dot" data-tip="Unusual: {{ it.mover_reasons|join(', ') }}"></span>{% endif %}
+    {% if not it.available %} <span class="badge stale">unavailable</span>{% elif it.stale %} <span class="badge stale" data-tip="{{ it|tip }}">stale</span>{% elif not it.fetch_ok %} <span class="badge stale" data-tip="{{ it|tip }}">not refreshed</span>{% endif %}</td>
+  {% if it.available %}
+  <td data-tip="{{ it|tip }}">{{ it|level }}</td>
+  <td data-tip="{{ it|tip }}">{{ move(it) }}</td>
+  <td class="{{ 'na' if it.z is none }}" data-tip="{{ 'Move divided by the 1-year standard deviation of daily moves (σ). Beyond ±2σ is flagged as unusual.' }}">{{ ('%.1fσ'|format(it.z|abs)) if it.z is not none else '—' }}</td>
+  <td class="{{ it.chg_1w|chgcls(it.is_yield) }} hide-sm">{{ it.chg_1w|chg(it.is_yield) }}</td>
+  <td class="muted small">{{ it|when }}</td>
+  {% else %}
+  <td colspan="5" class="na" data-tip="{{ it|tip }}">data unavailable · last attempt {{ it.fetched_at|dublin }}</td>
+  {% endif %}
+</tr>
+{%- endmacro %}
+
+{% macro release_row(e) -%}
+<tr id="ev-{{ e.key|replace(':','-') }}">
+  <td class="l">{{ e.time|dublin('%a %H:%M') }}</td>
+  <td class="l">{{ e.flag }} <span data-tip="{{ e.country_name }} · {{ e.name }}{% if e.period %} ({{ e.period }}){% endif %} · Source: {{ e.source }}{% if e.forecast_source %} · consensus from {{ e.forecast_source }}{% endif %}">{{ e.label }}</span>{% if e.period %} <span class="muted small">{{ e.period }}</span>{% endif %}</td>
+  <td><b data-tip="Source: {{ e.source }}">{{ e.actual_str if e.actual is not none else ('—' if e.kind == 'minutes' else 'not reported yet') }}</b></td>
+  <td data-tip="{{ ('Consensus source: ' ~ (e.forecast_source or 'TradingView')) if e.forecast is not none else (e.forecast_note or 'No free consensus available') }}">{{ e.forecast_str }}</td>
+  <td class="hide-sm">{{ e.previous_str }}</td>
+  <td class="{{ 'up' if e.surprise and e.surprise > 0 else ('down' if e.surprise and e.surprise < 0 else 'na') }}">{{ e.surprise_str }}</td>
+  <td class="l react">
+    {% for sid, r in (e.reaction or {}).items() %}
+      <span data-tip="{{ r.name }}: prior close {{ '%.4g'|format(r.prev) }} ({{ r.prev_date|datefmt('%d %b') }}){% if r.value is not none %} → {{ '%.4g'|format(r.value) }} ({{ 'close' if r.basis == 'close' else 'intraday ' ~ r.at }}){% endif %}">{{ r.name }} <span class="{{ r.change|chgcls(r.yield) if r.change is not none else 'na' }}">{{ r.change|chg(r.yield) if r.change is not none else ('pending' if r.basis == 'pending' else 'n/a') }}</span>{% if r.basis == 'intraday' %}<span class="muted"> @{{ r.at }}</span>{% endif %}</span>{% if not loop.last %} · {% endif %}
+    {% else %}<span class="muted">—</span>{% endfor %}
+  </td>
+</tr>
+{%- endmacro %}
+
+<div id="strip" aria-label="Next high-impact releases"><div class="inner"><span class="strip-label">Next up</span><span class="muted small">Loading countdowns…</span></div></div>
+
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <h1>Global Markets Now</h1>
+    <div class="ink2">Updated <b>{{ generated_at|dublin('%a %d %b %H:%M') }}</b> Dublin <span class="muted" id="age"></span></div>
+    <div class="muted small">{{ n_live }} of {{ n_series }} prices are live intraday quotes, the rest are latest closes · refreshes every {{ refresh.every_minutes or 15 }} min, weekdays {{ '%02d'|format(refresh.start_hour or 6) }}:00–{{ '%02d'|format(refresh.end_hour or 23) }}:00</div>
+  </div>
+  <button class="theme-btn" id="theme-btn" type="button" aria-label="Toggle colour theme">◐ Theme</button>
+</header>
+
+<div class="warn" id="stale-banner" role="status"></div>
+
+{% if warnings %}
+<details class="warn"><summary>⚠ {{ warnings|length }} data note{{ 's' if warnings|length != 1 }}: some values are labelled stale, announced, or unavailable</summary>
+<ul>{% for w in warnings %}<li>{{ w }}</li>{% endfor %}</ul></details>
+{% endif %}
+
+<section class="summary">
+  <div class="sec-head"><h2>Today in 3 sentences</h2><span class="muted small">{{ summary_source }}</span></div>
+  {% for s in summary %}<p>{{ s }}</p>{% endfor %}
+</section>
+
+<!-- Out of the ordinary -->
+<section id="unusual">
+  <div class="sec-head"><h2>Out of the ordinary</h2><span class="muted small" data-tip="Flagged when the move since the last close is beyond 2σ of the instrument's own 1-year daily moves, or beyond ±2% (equities, commodities), ±1% (FX), ±10bp (yields).">Moves since the last close beyond 2σ or fixed thresholds ⓘ</span></div>
+  {% if movers %}
+  <div class="movers">
+  {% for it in movers %}
+    <div class="mover {{ it.chg_1d|chgcls(it.is_yield) }}" data-tip="{{ it|tip }}">
+      <div class="top"><button class="name-btn nm" type="button" data-series="{{ it.id }}">{{ it.name }}</button><span class="muted small">{{ it|when }}</span></div>
+      <div class="lv">{{ it|level }} <span class="mv">{{ move(it) }}</span></div>
+      <div class="why">{% if it.z is not none %}<b>{{ '%.1f'|format(it.z|abs) }}σ</b> vs a normal day{% endif %}{% if it.mover_reasons|length and it.z is not none and (it.z|abs) < 2 %} · {{ it.mover_reasons[0] }}{% endif %}</div>
+      {{ sparkline(it.spark, 180, 28)|safe }}
+    </div>
+  {% endfor %}
+  </div>
+  {% if more_movers %}<div class="near" style="margin-top:10px"><span class="muted small">Also unusual:</span>{% for it in more_movers %}<span data-tip="{{ it|tip }}">{{ it.name }} {{ move(it) }}{% if it.z is not none %} <span class="muted small">{{ '%.1f'|format(it.z|abs) }}σ</span>{% endif %}</span>{% endfor %}</div>{% endif %}
+  {% else %}
+  <p class="muted" style="margin:0 0 6px">Nothing unusual right now: every move is inside its normal range.</p>
+  {% if near %}<div class="near"><span class="muted small">Closest to unusual:</span>{% for it in near %}<span data-tip="{{ it|tip }}">{{ it.name }} {{ move(it) }} <span class="muted small">{{ '%.1f'|format(it.z|abs) }}σ</span></span>{% endfor %}</div>{% endif %}
+  {% endif %}
+</section>
+
+<!-- What just changed -->
+<section id="changed">
+  <div class="sec-head"><h2>Just released</h2><span class="muted small">Rate decisions and data from the last 36 hours</span></div>
+  {% for b in rate_changes %}
+    <div class="decision" data-tip="Source: {{ b.source }}">
+      <div class="big">{{ b.name }} {{ 'raised' if b.last_change_bp > 0 else 'cut' }} {{ b.rate_label }} {{ '%+d'|format(b.last_change_bp) }}bp to {{ '%.2f'|format(b.rate) }}%</div>
+      <div class="muted small">{{ b.last_change|datefmt('%a %d %b') }}{% if b.announced %} · from the announcement; the official series hasn't updated yet{% endif %}{% if b.next_meeting %} · next meeting {{ b.next_meeting|dublin('%a %d %b') }}{% endif %}</div>
+    </div>
+  {% endfor %}
+  {% if fresh %}
+  <div class="tbl"><table class="cal">
+    <thead><tr><th class="l">When</th><th class="l">Release</th><th>Actual</th><th>Consensus</th><th class="hide-sm">Previous</th><th>Surprise</th><th class="l">Market reaction since prior close</th></tr></thead>
+    <tbody>{% for e in fresh %}{{ release_row(e) }}{% endfor %}</tbody>
+  </table></div>
+  {% elif not rate_changes %}<p class="muted">No high-impact releases in the last 36 hours{% if not calendar_ok %} (calendar source unavailable){% endif %}.</p>{% endif %}
+  {% if older %}
+  <details style="margin-top:8px"><summary class="muted small" style="cursor:pointer">Earlier ({{ older|length }})</summary>
+  <div class="tbl"><table class="cal"><tbody>{% for e in older %}{{ release_row(e) }}{% endfor %}</tbody></table></div></details>
+  {% endif %}
+</section>
+
+<!-- Coming up -->
+<section id="calendar">
+  <div class="sec-head"><h2>Coming up</h2><span class="muted small">Next {{ cal_cfg.countdown_days }} days · high-impact releases and central banks</span></div>
+  {% if week %}
+  <div class="tbl"><table class="cal">
+    <thead><tr><th class="l">When</th><th class="l">Release</th><th>Consensus</th><th class="hide-sm">Previous</th><th class="l">Countdown</th></tr></thead>
+    <tbody>
+    {% for e in week %}
+      <tr id="ev-{{ e.key|replace(':','-') }}" data-time="{{ e.time }}">
+        <td class="l when">{{ e.time|dublin('%a %d %b %H:%M') }}</td>
+        <td class="l">{{ e.flag }} <span data-tip="Source: {{ e.source }}">{{ e.label }}</span>{% if e.period %} <span class="muted small">{{ e.period }}</span>{% endif %}</td>
+        <td data-tip="{{ ('Consensus source: ' ~ (e.forecast_source or 'TradingView')) if e.forecast is not none else (e.forecast_note or 'No free consensus available') }}">{{ e.forecast_str if e.kind != 'minutes' else '—' }}</td>
+        <td class="hide-sm">{{ e.previous_str if e.kind != 'minutes' else '—' }}</td>
+        <td class="l cd" data-cd="{{ e.time }}"></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  <p class="muted small" style="margin-bottom:0">Red = today, amber = within {{ cal_cfg.amber_hours }}h. "n/a" consensus means no free forecast exists; it is never estimated.</p>
+  {% else %}<p class="muted">Nothing scheduled in the next {{ cal_cfg.countdown_days }} days{% if not calendar_ok %} (calendar source unavailable){% endif %}.</p>{% endif %}
+</section>
+
+<!-- Everything else, collapsed -->
+<details class="box" id="all-markets" data-remember>
+  <summary><h2>All markets</h2><span class="muted small">Bonds, FX, commodities, equities and policy rates · tap a name for a 1-year chart</span></summary>
+  <div class="body">
+  <div class="tbl"><table>
+    <thead><tr><th class="l">Market</th><th>Level</th><th data-tip="Change since the previous close (bp for yields)">Move</th><th data-tip="Move in standard deviations of normal daily moves">vs normal</th><th class="hide-sm">1 week</th><th>As of</th></tr></thead>
+    {% for title, items in groups %}
+    <tbody>
+      <tr><td colspan="6" class="l" style="padding-top:14px"><span class="muted small" style="text-transform:uppercase;letter-spacing:.06em">{{ title }}</span></td></tr>
+      {% for it in items %}{{ row(it) }}{% endfor %}
+    </tbody>
+    {% endfor %}
+  </table></div>
+
+  <h3>Central bank policy rates</h3>
+  <div class="tbl"><table>
+    <thead><tr><th class="l">Bank</th><th>Rate</th><th>Last change</th><th>Size</th><th>Next meeting</th></tr></thead>
+    <tbody>
+    {% for b in rates.banks %}
+      <tr class="{{ 'unusual' if b.recent_change }}">
+        <td class="l"><b>{{ b.short }}</b> <span class="muted small hide-sm">{{ b.rate_label }}</span>{% if b.warnings %} <span class="badge stale" data-tip="{{ b.warnings|join(' ') }}">check</span>{% endif %}</td>
+        {% if b.rate is not none %}
+        <td data-tip="Source: {{ b.source }} · as of {{ b.as_of|datefmt }}">{{ '%.2f'|format(b.rate) }}%{% if b.announced %} <span class="badge amber">announced</span>{% elif b.manual %} <span class="muted small">YAML</span>{% endif %}</td>
+        {% else %}<td data-tip="{{ b.error }}"><span class="na">data unavailable</span></td>{% endif %}
+        <td>{{ b.last_change|datefmt if b.last_change else 'n/a' }}</td>
+        <td class="neutral">{{ ('%+dbp'|format(b.last_change_bp)) if b.last_change_bp is not none else 'n/a' }}</td>
+        <td>{% if b.next_meeting %}{{ b.next_meeting|dublin('%a %d %b') }}{% else %}<span class="na">add to YAML</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  <p class="muted small">Meeting dates and the BoJ, RBA, RBNZ and PBoC rates come from <code>central_banks.yaml</code> (reviewed {{ rates.last_reviewed|datefmt }}). A decision on the calendar newer than the official series is shown as "announced". The ECB change date is the effective date.</p>
+  </div>
+</details>
+
+<section class="news" id="news">
+  <div class="sec-head"><h2>Headlines</h2><span class="muted small">Last 24h · deduplicated</span></div>
+  {% if news %}
+  <ul>
+  {% for n in news %}
+    <li><span class="tag">{{ n.category }}</span><a href="{{ n.link }}" target="_blank" rel="noopener">{{ n.title }}</a>
+      <div class="meta">{{ n.source }}{% if n.also %} · also {{ n.also|join(', ') }}{% endif %} · {{ n.time|dublin('%a %H:%M') }}</div></li>
+  {% endfor %}
+  </ul>
+  {% else %}<p class="muted">News feeds unavailable.</p>{% endif %}
+</section>
+
+<footer>
+  <details data-remember id="checks"><summary style="cursor:pointer">Data checks and sources{% if failed_sources %} ({{ failed_sources|length }} failed this run){% endif %}</summary>
+  <div class="tbl"><table>
+    <thead><tr><th class="l">Check</th><th class="l">Against</th><th class="l">Result</th></tr></thead>
+    <tbody>
+    {% for c in market_checks %}
+      <tr><td class="l">{{ c.series }}</td><td class="l">{{ c.source }}</td>
+        <td class="l">{% if c.ok is none %}<span class="na">not run: {{ c.error }}</span>{% elif c.ok %}✓ {{ '%+.1f'|format(c.diff_bp) }}bp on {{ c.date|datefmt('%d %b') }}{% else %}<span style="color:var(--stale)">⚠ {{ '%+.1f'|format(c.diff_bp) }}bp on {{ c.date|datefmt('%d %b') }} (tolerance {{ c.tolerance_bp }}bp)</span>{% endif %} <span class="muted">{{ c.note }}</span></td></tr>
+    {% endfor %}
+    {% for c in calendar_checks %}
+      <tr><td class="l">{{ c.what }}</td><td class="l">{{ c.source }}</td><td class="l">{% if c.ok %}✓ {{ c.detail }}{% else %}<span style="color:var(--stale)">⚠ {{ c.detail }}</span>{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% if failed_sources %}
+  <h3>Sources that failed this run</h3>
+  <ul>{% for f in failed_sources %}<li>{{ f.key }} ({{ f.source }}): {{ f.detail }}</li>{% endfor %}</ul>
+  {% endif %}
+  </details>
+  <p>Sources: Yahoo Finance, CNBC, FRED, NY Fed, ECB Data Portal, Bank of England, SNB, Bank of Canada, Bundesbank, Japan MoF, TradingView &amp; Forex Factory calendars, CSO Ireland, and RSS feeds. Hover or tap any number for its source and timestamp. Not investment advice.</p>
+</footer>
+</div>
+
+<div id="tip" role="tooltip"></div>
+<dialog id="chart-dlg"><div class="dlg-head"><b id="dlg-title"></b><button class="close-btn" type="button" id="dlg-close">Close</button></div><div class="chart-box"><canvas id="dlg-canvas"></canvas></div><div class="muted small" id="dlg-note"></div></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const EVENTS = {{ events_js|tojson_compact|safe }};
+const CAL = {{ cal_js|tojson_compact|safe }};
+const SERIES = {{ chart_js|tojson_compact|safe }};
+const BUILT = Date.parse({{ generated_at|tojson_compact|safe }});
+const REFRESH = {{ refresh|tojson_compact|safe }};
+const TZ = "Europe/Dublin";
+
+/* ---------- theme ---------- */
+(function(){
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("theme"); if (t) root.dataset.theme = t; } catch(e) {}
+  document.getElementById("theme-btn").addEventListener("click", () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("theme", root.dataset.theme); } catch(e) {}
+  });
+})();
+
+/* ---------- remember which collapsible sections are open ---------- */
+document.querySelectorAll("details[data-remember]").forEach(d => {
+  const k = "open:" + d.id;
+  try { if (localStorage.getItem(k) === "1") d.open = true; } catch(e) {}
+  d.addEventListener("toggle", () => { try { localStorage.setItem(k, d.open ? "1" : "0"); } catch(e) {} });
+});
+
+/* ---------- time helpers (Europe/Dublin) ---------- */
+const dayKey = d => new Intl.DateTimeFormat("en-CA", {timeZone: TZ, year:"numeric", month:"2-digit", day:"2-digit"}).format(d);
+const hhmm = d => new Intl.DateTimeFormat("en-GB", {timeZone: TZ, hour:"2-digit", minute:"2-digit"}).format(d);
+const dayName = d => new Intl.DateTimeFormat("en-GB", {timeZone: TZ, weekday:"short", day:"numeric", month:"short"}).format(d);
+const dublinParts = d => Object.fromEntries(new Intl.DateTimeFormat("en-GB", {timeZone: TZ, weekday:"short", hour:"2-digit", hour12:false}).formatToParts(d).map(p => [p.type, p.value]));
+function countdown(ms){
+  if (ms <= 0) return "now";
+  const s = Math.floor(ms/1000), d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60), sec = s%60;
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m ${String(sec).padStart(2,"0")}s`;
+}
+function ago(ms){
+  const m = Math.round(ms/60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m/60); return h < 48 ? `${h}h ${m%60}m ago` : `${Math.floor(h/24)} days ago`;
+}
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- freshness: say how old the page is, warn if a refresh was missed ---------- */
+function inWindow(d){
+  const p = dublinParts(d), h = +p.hour % 24;
+  return !["Sat","Sun"].includes(p.weekday) && h >= (REFRESH.start_hour ?? 6) && h < (REFRESH.end_hour ?? 23);
+}
+function freshness(){
+  const now = new Date(), age = now - BUILT;
+  document.getElementById("age").textContent = "(" + ago(age) + ")";
+  const b = document.getElementById("stale-banner");
+  const limit = (REFRESH.stale_after_minutes ?? 45) * 60000;
+  if (inWindow(now) && age > limit) {
+    b.style.display = "block";
+    b.textContent = `⚠ This page hasn't refreshed since ${dayName(new Date(BUILT))} ${hhmm(new Date(BUILT))} (${ago(age)}). Prices and releases since then are missing. Reload, or check the GitHub Actions runs.`;
+  } else b.style.display = "none";
+}
+
+/* ---------- countdown strip and row prominence ---------- */
+function tick(){
+  const now = Date.now(), today = dayKey(new Date());
+  const amberMs = CAL.amber_hours*3600e3, stripMs = CAL.countdown_days*86400e3;
+  const groups = [];
+  for (const e of EVENTS) {
+    const t = Date.parse(e.time);
+    if (t <= now || t - now > stripMs || e.kind === "minutes") continue;
+    const g = groups.find(g => g.t === t && g.country === e.country);
+    if (g) g.names.push(e.short); else groups.push({t, country:e.country, flag:e.flag, names:[e.short]});
+  }
+  groups.sort((a,b) => a.t - b.t);
+  const chips = groups.slice(0, CAL.countdown_count).map(g => {
+    const isToday = dayKey(new Date(g.t)) === today;
+    const cls = isToday ? "today" : (g.t - now <= amberMs ? "amber" : "");
+    return `<span class="chip ${cls}" title="${esc(dayName(new Date(g.t)))} ${hhmm(new Date(g.t))} Dublin">${isToday ? '<span class="badge red">TODAY</span> ' : ""}${g.flag} <b>${esc(g.names.join(" · "))}</b><span class="cd">in ${countdown(g.t-now)}</span></span>`;
+  }).join("");
+  document.querySelector("#strip .inner").innerHTML = `<span class="strip-label">Next up</span>` + (chips || `<span class="muted small">No high-impact releases in the next ${CAL.countdown_days} days</span>`);
+
+  document.querySelectorAll(".cal tr[data-time]").forEach(tr => {
+    const t = Date.parse(tr.dataset.time), cd = tr.querySelector("[data-cd]"), isToday = dayKey(new Date(t)) === today;
+    tr.classList.toggle("today", isToday);
+    tr.classList.toggle("amber", t > now && t - now <= amberMs && !isToday);
+    if (cd) cd.innerHTML = t > now ? (isToday ? '<span class="badge red">TODAY</span> ' : "") + `in ${countdown(t-now)}` : "released, figures at next refresh";
+  });
+  if (now % 30000 < 1000) freshness();
+}
+freshness(); tick(); setInterval(tick, 1000);
+
+/* ---------- reload while open so the page stays current ---------- */
+setInterval(() => {
+  const dlgOpen = document.getElementById("chart-dlg").open;
+  if (document.visibilityState === "visible" && !dlgOpen && Date.now() - performance.timeOrigin > 5*60000) location.reload();
+}, 60000);
+
+/* ---------- tooltips (hover on desktop, tap on phones) ---------- */
+(function(){
+  const tip = document.getElementById("tip");
+  let pinned = null;
+  function show(el){
+    tip.textContent = el.dataset.tip; tip.style.display = "block";
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = Math.min(Math.max(8, r.left + r.width/2 - w/2), innerWidth - w - 8);
+    let y = r.top - h - 8; if (y < 8) y = r.bottom + 8;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  const hide = () => { tip.style.display = "none"; pinned = null; };
+  document.addEventListener("mouseover", e => { const el = e.target.closest("[data-tip]"); if (el && !pinned) show(el); });
+  document.addEventListener("mouseout", e => { if (!pinned && e.target.closest("[data-tip]")) tip.style.display = "none"; });
+  document.addEventListener("click", e => {
+    if (e.target.closest("summary,[data-series]")) return;
+    const el = e.target.closest("[data-tip]");
+    if (el && el !== pinned) { pinned = el; show(el); } else hide();
+  });
+  addEventListener("scroll", () => { if (!pinned) tip.style.display = "none"; else show(pinned); }, {passive:true});
+})();
+
+/* ---------- 1-year chart modal ---------- */
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function lineChart(canvas, labels, data, yLabel){
+  if (!window.Chart) { canvas.parentElement.innerHTML = '<p class="muted small">Chart library unavailable offline.</p>'; return null; }
+  return new Chart(canvas, {
+    type: "line",
+    data: {labels, datasets: [{data, borderColor: css("--spark"), borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0}]},
+    options: {responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: {mode: "index", intersect: false},
+      plugins: {legend: {display: false}, tooltip: {callbacks: {label: c => `${c.parsed.y}${yLabel}`}}},
+      scales: {x: {ticks: {color: css("--muted"), maxTicksLimit: 6, maxRotation: 0}, grid: {display: false}},
+               y: {ticks: {color: css("--muted")}, grid: {color: css("--line2")}}}}
+  });
+}
+(function(){
+  const dlg = document.getElementById("chart-dlg");
+  let chart = null;
+  document.querySelectorAll("[data-series]").forEach(b => b.addEventListener("click", ev => {
+    ev.stopPropagation();
+    const s = SERIES[b.dataset.series];
+    if (!s || !s.chart || s.chart.length < 2) { alert("Not enough history for a chart yet."); return; }
+    document.getElementById("dlg-title").textContent = s.name + " — 1 year";
+    document.getElementById("dlg-note").textContent = "Source: " + s.source;
+    dlg.showModal();
+    if (chart) chart.destroy();
+    const unit = b.dataset.series === "_2s10s" ? "bp" : (s.is_yield ? "%" : "");
+    chart = lineChart(document.getElementById("dlg-canvas"), s.chart.map(p => p[0]), s.chart.map(p => p[1]), unit);
+  }));
+  document.getElementById("dlg-close").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+})();
+</script>
+</body>
+</html>
