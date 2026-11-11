@@ -71,6 +71,26 @@ class Fetcher:
                 self._ycache[sym] = c.astype(float)
             except Exception:
                 pass
+        # Yahoo's batch endpoint sometimes drops a symbol, or returns it without
+        # its latest sessions. Retry those one at a time before giving up.
+        newest = max((c.index[-1] for c in self._ycache.values() if len(c)), default=None)
+        for sym in self._yahoo_symbols:
+            c = self._ycache.get(sym)
+            if c is not None and len(c) and newest and (newest - c.index[-1]).days <= 3:
+                continue
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    one = yf.download(sym, period=self._yahoo_period, interval="1d", progress=False,
+                                      auto_adjust=False, threads=False, timeout=20)
+                c1 = one["Close"]
+                c1 = (c1[sym] if isinstance(c1, pd.DataFrame) else c1).dropna()
+                c1.index = [ts.date() for ts in pd.to_datetime(c1.index)]
+                if len(c1) and (c is None or not len(c) or c1.index[-1] > c.index[-1]):
+                    self._ycache[sym] = c1.astype(float)
+                    log.info("Yahoo %s: refetched on its own (batch was missing or behind)", sym)
+            except Exception as e:
+                log.info("Yahoo %s: single retry failed (%s)", sym, e)
 
     def _yahoo(self, symbol: str, days: int) -> pd.Series:
         if self._ycache is None:

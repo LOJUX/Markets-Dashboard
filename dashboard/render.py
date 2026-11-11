@@ -113,7 +113,10 @@ def tip(it: dict) -> str:
         parts.append(f"Fetched {dublin(it['fetched_at'])} Dublin")
     if not it.get("fetch_ok"):
         parts.append(f"Today's fetch failed ({it.get('fetch_error')}); showing last stored value")
-    if it.get("stale"):
+    if it.get("ref_stale"):
+        parts.append(f"No daily move shown: the last stored close is {date_fmt(it['ref_date'], '%a %d %b')}, "
+                     "so a change from it would span several sessions")
+    elif it.get("stale"):
         parts.append(f"STALE: expected a close for {date_fmt(it['expected'], '%d %b')}")
     if it.get("sd"):
         parts.append(f"1y daily σ: {it['sd']:.2f}{'bp' if it['is_yield'] else '%'}")

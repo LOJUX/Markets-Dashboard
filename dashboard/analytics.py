@@ -96,13 +96,23 @@ def analyse(cfg: dict, hist: History, status: dict, live: dict | None = None) ->
         if y_d is not None and y_d < dt.date(cur_d.year - 1, 12, 20):
             y = None  # history does not reach the previous year-end
         chg1 = _change(cur, prev, is_yield)
+        # A live quote measured against a close several sessions old is not a
+        # one-day move (e.g. the history fetch failed for a week): don't show one.
+        ref_gap = None
+        if basis == "live" and not spec.get("weekends"):
+            ref_gap = int(np.busday_count(last_d, lq_session)) - 1
+        elif basis == "live":
+            ref_gap = (lq_session - last_d).days - 1
+        ref_stale = ref_gap is not None and ref_gap > stale_tol
+        if ref_stale:
+            chg1 = None
         sd = float(sd_sample.std()) if len(sd_sample) > 60 else None
         z = chg1 / sd if (chg1 is not None and sd) else None
 
         expected = _expected_session(spec)
         seen = max(last_d, lq_session) if lq_session else last_d
         gap = int(np.busday_count(seen, expected)) if not spec.get("weekends") else (expected - seen).days
-        stale = gap > stale_tol
+        stale = gap > stale_tol or ref_stale
 
         thr = spec.get("mover_bp" if is_yield else "mover_pct", mcfg["thresholds"][spec["group"]])
         reasons = []
@@ -121,7 +131,8 @@ def analyse(cfg: dict, hist: History, status: dict, live: dict | None = None) ->
             available=True, value=cur, date=cur_d.isoformat(), source=src_label, basis=basis, at=at,
             ref_date=ref_d.isoformat() if ref_d else None, close_source=latest_src,
             prev=prev, chg_1d=chg1, chg_1w=_change(cur, w, is_yield), chg_1m=_change(cur, m, is_yield),
-            chg_ytd=_change(cur, y, is_yield), sd=sd, z=z, stale=stale, expected=expected.isoformat(),
+            chg_ytd=_change(cur, y, is_yield), sd=sd, z=z, stale=stale, ref_stale=ref_stale,
+            expected=expected.isoformat(),
             mover=bool(reasons), mover_reasons=reasons, n_points=len(s),
             spark=[round(v, 6) for v in spark], chart=chart,
         )
