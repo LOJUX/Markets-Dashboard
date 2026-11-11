@@ -2,15 +2,17 @@
 
 A single-page global markets dashboard hosted free on GitHub Pages. GitHub Actions rebuilds it **every 15 minutes on weekdays, 06:00–23:00 Dublin time**. Each run fetches the latest closes, live intraday quotes, policy rates, the economic calendar and headlines.
 
-The page focuses on what has changed and what is out of the ordinary:
+The page answers "what's going on in markets?" without swamping you:
 
-1. **Next up**: a countdown strip of the next releases, with a red TODAY badge on release day.
-2. **Today in 3 sentences.**
-3. **Out of the ordinary**: moves since the last close beyond 2σ of the instrument's own 1-year daily moves, or beyond the fixed thresholds. Shown as up to 8 cards; any others are listed in one line underneath. If nothing qualifies, it shows the moves closest to unusual.
-4. **Just released**: rate decisions and data from the last 36 hours, with actual vs consensus, the surprise and the market reaction.
-5. **Coming up**: the next 7 days.
-6. **All markets** (collapsed): every bond, FX pair, commodity and index, plus policy rates. Each row shows its move in σ, and unusual rows are marked.
-7. **Headlines** (8) and **Data checks** (collapsed).
+1. **Next up**: a countdown strip of the next big releases, with a red TODAY badge on release day.
+2. **What's going on**: a short briefing covering stocks across regions, yields and the dollar, commodities and the VIX, what is driving things, the top story and what's next.
+3. **Key markets**: a fixed panel of 15 headline numbers (stocks, bonds, currencies, commodities and risk) with the latest move, the past week and a 3-month trend. Underneath it are the Fed, ECB, BoE and BoJ policy rates, with each bank's last change and next meeting. The list is set in `key_markets` and `key_banks` in `config.yaml`.
+4. **Out of the ordinary**: up to 5 moves that are large *for that market*, today or over the past week (see below). If nothing qualifies, it shows the closest.
+5. **Just released**: rate decisions and data from the last 36 hours, with actual vs consensus, the surprise and the market reaction.
+6. **Coming up**: the next 7 days of high-impact releases. Second-tier data (`minor: true` in `config.yaml`) only appears under Just released.
+7. **All markets** (collapsed): every bond, FX pair, commodity and index, plus every central bank.
+8. **Headlines**: the 6 most market-relevant stories of the last 24h, ranked by topic, by whether the story is market-wide or about a market-moving company, and by how many outlets carry it. Personal-finance and stock-tip pieces rank lower. At most 2 stories come from one outlet, 3 from one topic and 1 per big company.
+9. **Data checks** (collapsed).
 
 All times are shown in Europe/Dublin. Hover over or tap any number to see its source, its time (live quote or close) and the close the move is measured from.
 
@@ -45,7 +47,7 @@ Go to **Settings → Secrets and variables → Actions → New repository secret
 | Secret | Required? | What it does |
 |---|---|---|
 | `FRED_API_KEY` | Recommended | Fed funds target from FRED, FRED fallback for US Treasury yields, a cross-check of US yields against H.15, and a cross-check of US release dates. Get a free key at <https://fred.stlouisfed.org/docs/api/api_key.html>. Without it, the Fed rate comes from the NY Fed API and those checks show "not run". |
-| `ANTHROPIC_API_KEY` | Optional | If set, Claude (`claude-opus-5-5`) writes the "Today in 3 sentences" box from the numbers and headlines on the page. If it isn't set, or the call fails, a rule-based summary is used. Server-side refusal fallback is turned on (`fallbacks: "default"`). |
+| `ANTHROPIC_API_KEY` | Optional | If set, Claude (`claude-opus-5-5`) writes the "What's going on" briefing from the numbers and headlines on the page. If it isn't set, or the call fails, a rule-based summary is used. Server-side refusal fallback is turned on (`fallbacks: "default"`). |
 
 ### 3. Let Actions push commits
 
@@ -81,7 +83,6 @@ Everything is configured in [`config.yaml`](config.yaml). To add an index, appen
 - `group`: `yields`, `fx`, `commodities` or `equities`. Yields are shown in % with changes in bp. Everything else shows changes in %.
 - `sources`: tried in order until one returns data. Types: `yahoo`, `cnbc`, `fred`, `boe`, `bundesbank`, `mof`.
 - `close`: when the daily session ends, in local exchange time. A bar dated today is ignored until then, so partial days never enter the history.
-- `mover_pct` / `mover_bp`: optional per-series override of the "big mover" threshold.
 
 To remove a ticker, delete its line. Its old rows stay in `data/history.csv` but are no longer shown.
 
@@ -116,7 +117,7 @@ You can also edit the economic releases (`calendar.releases`, matched by regex a
 
 **Live vs close.** History stores completed daily closes only. When an intraday quote belongs to a session newer than the last stored close, the page shows the quote and measures the move from that close. Otherwise it shows the close and the move from the close before it. The "As of" column says which: a time, or "close Thu".
 
-**Unusual moves** are flagged when the move since the last close is beyond 2σ of the instrument's own 1-year daily moves, or beyond the fixed thresholds (equities/commodities ±2%, FX ±1%, yields ±10bp). Bitcoin (±5%) and the VIX (±10%) have higher fixed thresholds in `config.yaml`, because at ±2% they would be flagged almost every day. The 2σ rule still applies to both.
+**Unusual moves** are judged against each market's own normal. σ is the standard deviation of its daily moves over the past year. A move is flagged when today's move (since the last close) is beyond 2σ, or the past week's move is beyond 2σ of a normal week (daily σ × √5). There are no fixed % thresholds, so a jumpy market like Bitcoin or the VIX isn't flagged for an ordinary day, while a quiet market making an unusual move is. Headline markets get a small boost in the ranking. The settings are `sigma`, `week_sigma` and `max_shown` under `movers`.
 
 **Market reactions** to a release are measured from the previous day's close: to that day's close once it is stored, otherwise to the latest intraday quote after the release, labelled with its time.
 

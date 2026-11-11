@@ -11,6 +11,15 @@ import feedparser
 
 from .util import UTC, Status, get, now_utc
 
+CATEGORY_WEIGHT = {"Central banks": 3, "Macro data": 2, "Geopolitics": 1.5, "Commodities": 1, "Companies": 0.5}
+# Stories about the market as a whole, or the handful of companies big enough to move it
+MARKET_WIDE = re.compile(r"\b(markets?|stocks|shares|equities|wall street|s&p|nasdaq|dow|ftse|stoxx|nikkei|bonds?|yields?|"
+                         r"treasur\w*|gilts?|bunds?|dollar|sterling|euro|yen|currenc\w*|oil prices?|sell-?off|rally|"
+                         r"recession|tariffs?|inflation|rates?)\b", re.I)
+MEGACAP = re.compile(r"\b(nvidia|apple|microsoft|alphabet|google|amazon|meta|tesla|broadcom|tsmc|jpmorgan|berkshire|opec)\b", re.I)
+# Personal-finance and stock-tip pieces: rarely "what's going on in markets"
+LOW_VALUE = re.compile(r"(here'?s (how|why|what)|how to|should you|ways to|\bbest\b|\btop \d|could (march|soar|rise|double)|"
+                       r"retire|retirement|my |\bi'?m\b|\byour (money|portfolio|savings)|buy (now|before)|millionaire|dividend stock)", re.I)
 STOP = {"the", "a", "an", "to", "of", "in", "on", "for", "and", "as", "at", "is", "after",
         "with", "by", "from", "its", "it", "be", "are", "us", "says", "say"}
 
@@ -71,23 +80,36 @@ def fetch_news(cfg: dict, status: Status) -> list[dict]:
         else:
             unique.append(it)
 
-    # Prefer categorised stories and stories carried by several outlets; cap per source.
+    # Rank by how much a story matters to markets, then keep the top few with
+    # at most `max_shown_per_source` from any one outlet.
     def score(it):
-        return (it["category"] is not None, len(it.get("also", [])), it["time"])
+        t = it["title"]
+        sc = CATEGORY_WEIGHT.get(it["category"], 0)
+        sc += 2 * bool(MARKET_WIDE.search(t)) + 3 * bool(MEGACAP.search(t))
+        sc += min(len(set(it.get("also", [])) - {it["source"]}), 3)
+        sc -= 3 * bool(LOW_VALUE.search(t)) + (t.rstrip().endswith("?"))
+        age_h = (now_utc() - dt.datetime.fromisoformat(it["time"])).total_seconds() / 3600
+        return sc + max(0.0, 1 - age_h / ncfg["hours"])
 
-    picked, per_source = [], {}
+    # A cap per topic too, so one busy theme can't push out every other story.
+    show, cap = ncfg.get("show", 6), ncfg.get("max_shown_per_source", 2)
+    cat_cap = ncfg.get("max_shown_per_category", 3)
+    picked, per_source, per_cat, companies = [], {}, {}, set()
     for it in sorted(unique, key=score, reverse=True):
-        if it["category"] is None and sum(1 for p in picked if p["category"]) >= ncfg["min_items"]:
+        if per_source.get(it["source"], 0) >= cap or per_cat.get(it["category"], 0) >= cat_cap:
             continue
-        if per_source.get(it["source"], 0) >= ncfg["max_per_source"]:
+        # one story per big company: different angles on the same news read as repeats
+        names = {m.lower() for m in MEGACAP.findall(it["title"])}
+        if names & companies:
             continue
+        companies |= names
         picked.append(it)
         per_source[it["source"]] = per_source.get(it["source"], 0) + 1
-        if len(picked) >= ncfg["max_items"]:
+        per_cat[it["category"]] = per_cat.get(it["category"], 0) + 1
+        if len(picked) >= show:
             break
     for it in picked:
         it.pop("_tokens", None)
         it["category"] = it["category"] or "Markets"
         it["also"] = sorted(set(it.get("also", [])) - {it["source"]})
-    picked.sort(key=lambda x: x["time"], reverse=True)
     return picked

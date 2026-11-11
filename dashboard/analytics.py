@@ -114,13 +114,22 @@ def analyse(cfg: dict, hist: History, status: dict, live: dict | None = None) ->
         gap = int(np.busday_count(seen, expected)) if not spec.get("weekends") else (expected - seen).days
         stale = gap > stale_tol or ref_stale
 
-        thr = spec.get("mover_bp" if is_yield else "mover_pct", mcfg["thresholds"][spec["group"]])
-        reasons = []
-        if chg1 is not None and not stale:
-            if abs(chg1) >= thr:
-                reasons.append(f"beyond ±{thr:g}{'bp' if is_yield else '%'}")
+        # Unusual = large for this market, today or over the past week. A week of
+        # independent daily moves has a stdev of sd * sqrt(sessions in a week).
+        chg1w = _change(cur, w, is_yield)
+        z_w = None
+        if chg1w is not None and sd:
+            z_w = chg1w / (sd * np.sqrt(7 if spec.get("weekends") else 5))
+        reasons, horizon = [], None
+        if not stale:
             if z is not None and abs(z) >= mcfg["sigma"]:
-                reasons.append(f"{abs(z):.1f}σ move")
+                reasons.append(f"today {abs(z):.1f}σ")
+                horizon = "day"
+            if z_w is not None and abs(z_w) >= mcfg.get("week_sigma", mcfg["sigma"]):
+                reasons.append(f"this week {abs(z_w):.1f}σ")
+                horizon = horizon or "week"
+        # rank by the larger of the two, so one list can mix both horizons
+        z_rank = max(abs(z or 0), abs(z_w or 0)) if reasons else 0
 
         spark = [float(v) for v in s[s.index > cur_d - dt.timedelta(days=92)].values]
         chart = [[d.isoformat(), round(float(v), 6)] for d, v in yr.items()]
@@ -130,7 +139,8 @@ def analyse(cfg: dict, hist: History, status: dict, live: dict | None = None) ->
         item.update(
             available=True, value=cur, date=cur_d.isoformat(), source=src_label, basis=basis, at=at,
             ref_date=ref_d.isoformat() if ref_d else None, close_source=latest_src,
-            prev=prev, chg_1d=chg1, chg_1w=_change(cur, w, is_yield), chg_1m=_change(cur, m, is_yield),
+            prev=prev, chg_1d=chg1, chg_1w=chg1w, chg_1m=_change(cur, m, is_yield), z_w=z_w,
+            horizon=horizon, z_rank=z_rank,
             chg_ytd=_change(cur, y, is_yield), sd=sd, z=z, stale=stale, ref_stale=ref_stale,
             expected=expected.isoformat(),
             mover=bool(reasons), mover_reasons=reasons, n_points=len(s),

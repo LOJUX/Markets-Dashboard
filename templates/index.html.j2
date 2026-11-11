@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Global Markets Now</title>
-<meta name="description" content="Global markets dashboard refreshed every 15 minutes: unusual moves, rate decisions, data releases and what is coming up. Times in Europe/Dublin.">
+<meta name="description" content="What's going on in global markets: a short briefing, key markets and policy rates, unusual moves, data releases and headlines. Refreshed every 15 minutes, times in Europe/Dublin.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232a78d6'/%3E%3Cpolyline points='5,22 12,15 18,19 27,8' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -58,7 +58,7 @@ header.top{display:flex;justify-content:space-between;align-items:flex-start;gap
 .mover{border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:10px;padding:10px 12px;background:var(--bg)}
 .mover.up{border-left-color:var(--bar-up)}.mover.down{border-left-color:var(--bar-down)}.mover.neutral{border-left-color:var(--spark)}
 .mover .nm{font-size:13px;color:var(--ink2)}.mover .lv{font-size:19px;font-weight:600}
-.mover .why{font-size:12px;color:var(--muted)}
+.mover .why{font-size:12px;color:var(--ink2)}
 /* tables */
 .tbl{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-size:14px}
@@ -87,6 +87,20 @@ tr:last-child td{border-bottom:0}
 .cal .cd{color:var(--ink2);font-size:13px}
 .react{font-size:12px;color:var(--ink2);white-space:normal;min-width:160px}
 .surprise-big{font-weight:600}
+/* key markets */
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:760px){.keys{grid-template-columns:1fr}}
+.kgroup{border:1px solid var(--line);border-radius:10px;padding:8px 10px 6px;background:var(--bg);overflow:hidden}
+.kgroup h3{margin:0 0 4px}
+.kgroup table{font-size:14px}
+.kgroup td{padding:5px 4px}.kgroup td:first-child{padding-left:0}
+.kgroup th{padding:2px 4px 4px;font-size:11px}
+.kgroup .spark{width:56px;height:20px;display:block;margin-left:auto}
+.kgroup td.sp{width:60px}
+.krates{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.krate{border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--bg);font-size:13px;flex:1 1 200px}
+.krate b{font-size:15px}
+.krate.recent{border-color:var(--accent);border-left:4px solid var(--accent)}
 /* collapsible sections */
 details.box{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:14px 0}
 details.box>summary{cursor:pointer;padding:14px 16px;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -115,6 +129,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .chart-box{position:relative;height:260px}
 footer{font-size:12px;color:var(--muted);margin-top:18px}
 footer table{font-size:12px}
+@media (max-width:420px){.hide-xs{display:none}}
 @media (max-width:600px){
   body{font-size:14px}.hide-sm{display:none}td,th{padding:6px 5px}
   .summary p{font-size:15px}
@@ -129,7 +144,7 @@ footer table{font-size:12px}
 
 {% macro row(it) -%}
 <tr class="{{ 'stale-row' if it.stale or not it.available }}{{ ' unusual' if it.mover }}">
-  <td class="l">{% if it.chart is defined and it.chart %}<button class="name-btn" type="button" data-series="{{ it.id }}">{{ it.name }}</button>{% else %}{{ it.name }}{% endif %}{% if it.mover %}<span class="flag-dot" data-tip="Unusual: {{ it.mover_reasons|join(', ') }}"></span>{% endif %}
+  <td class="l">{% if it.chart is defined and it.chart %}<button class="name-btn" type="button" data-series="{{ it.id }}">{{ it.name }}</button>{% else %}{{ it.name }}{% endif %}{% if it.mover %}<span class="flag-dot" data-tip="Out of the ordinary: {{ it.mover_reasons|join(', ') }}"></span>{% endif %}
     {% if not it.available %} <span class="badge stale">unavailable</span>{% elif it.stale %} <span class="badge stale" data-tip="{{ it|tip }}">stale</span>{% elif not it.fetch_ok %} <span class="badge stale" data-tip="{{ it|tip }}">not refreshed</span>{% endif %}</td>
   {% if it.available %}
   <td data-tip="{{ it|tip }}">{{ it|level }}</td>
@@ -140,6 +155,18 @@ footer table{font-size:12px}
   {% else %}
   <td colspan="5" class="na" data-tip="{{ it|tip }}">data unavailable · last attempt {{ it.fetched_at|dublin }}</td>
   {% endif %}
+</tr>
+{%- endmacro %}
+
+{% macro key_row(it) -%}
+<tr class="{{ 'stale-row' if it.stale or not it.available }}{{ ' unusual' if it.mover }}">
+  <td class="l"><button class="name-btn" type="button" data-series="{{ it.id }}">{{ it.name|replace(' (DXY)', '') }}</button>{% if it.mover %}<span class="flag-dot" data-tip="Out of the ordinary: {{ it.mover_reasons|join(', ') }}"></span>{% endif %}</td>
+  {% if it.available %}
+  <td data-tip="{{ it|tip }}">{{ it|level }}</td>
+  <td data-tip="{{ it|tip }}">{{ move(it) }}</td>
+  <td class="{{ it.chg_1w|chgcls(it.is_yield) }}" data-tip="Change over the past week">{{ it.chg_1w|chg(it.is_yield) }}</td>
+  <td class="sp hide-xs" data-tip="Past 3 months">{{ sparkline(it.spark, 56, 20)|safe }}</td>
+  {% else %}<td colspan="4" class="na" data-tip="{{ it|tip }}">unavailable</td>{% endif %}
 </tr>
 {%- endmacro %}
 
@@ -167,7 +194,7 @@ footer table{font-size:12px}
   <div>
     <h1>Global Markets Now</h1>
     <div class="ink2">Updated <b>{{ generated_at|dublin('%a %d %b %H:%M') }}</b> Dublin <span class="muted" id="age"></span></div>
-    <div class="muted small">{{ n_live }} of {{ n_series }} prices are live intraday quotes, the rest are latest closes · refreshes every {{ refresh.every_minutes or 15 }} min, weekdays {{ '%02d'|format(refresh.start_hour or 6) }}:00–{{ '%02d'|format(refresh.end_hour or 23) }}:00</div>
+    <div class="muted small">Refreshes every {{ refresh.every_minutes or 15 }} min, weekdays {{ '%02d'|format(refresh.start_hour or 6) }}:00–{{ '%02d'|format(refresh.end_hour or 23) }}:00</div>
   </div>
   <button class="theme-btn" id="theme-btn" type="button" aria-label="Toggle colour theme">◐ Theme</button>
 </header>
@@ -180,28 +207,53 @@ footer table{font-size:12px}
 {% endif %}
 
 <section class="summary">
-  <div class="sec-head"><h2>Today in 3 sentences</h2><span class="muted small">{{ summary_source }}</span></div>
-  {% for s in summary %}<p>{{ s }}</p>{% endfor %}
+  <div class="sec-head"><h2>What's going on</h2><span class="muted small">{{ summary_source }}</span></div>
+  {% for line in summary %}<p>{{ line }}</p>{% endfor %}
+</section>
+
+<!-- Key markets: the fixed headline numbers -->
+<section id="key">
+  <div class="sec-head"><h2>Key markets</h2><span class="muted small">Latest move and past week · tap a name for a 1-year chart</span></div>
+  <div class="keys">
+  {% for title, items in key_panel %}
+    <div class="kgroup"><h3>{{ title }}</h3>
+      <table><thead><tr><th class="l"></th><th>Level</th><th>Move</th><th>Week</th><th class="hide-xs"></th></tr></thead>
+      <tbody>{% for it in items %}{{ key_row(it) }}{% endfor %}</tbody></table>
+    </div>
+  {% endfor %}
+  </div>
+  {% if key_rates %}
+  <div class="krates">
+  {% for b in key_rates %}
+    <div class="krate{{ ' recent' if b.recent_change }}" data-tip="{{ b.rate_label }} · Source: {{ b.source }}">
+      {% if b.rate is not none %}<b>{{ b.short }} {{ '%.2f'|format(b.rate) }}%</b>{% if b.announced %} <span class="badge amber">announced</span>{% endif %}{% else %}<b>{{ b.short }}</b> <span class="na">unavailable</span>{% endif %}
+      <div class="muted small">{% if b.last_change and b.last_change_bp %}{{ 'Hiked' if b.last_change_bp > 0 else 'Cut' }} {{ b.last_change_bp|abs }}bp on {{ b.last_change|datefmt('%-d %b') }}{% else %}No recent change{% endif %}{% if b.next_meeting %} · next {{ b.next_meeting|dublin('%-d %b') }}{% endif %}</div>
+    </div>
+  {% endfor %}
+  </div>
+  {% endif %}
 </section>
 
 <!-- Out of the ordinary -->
 <section id="unusual">
-  <div class="sec-head"><h2>Out of the ordinary</h2><span class="muted small" data-tip="Flagged when the move since the last close is beyond 2σ of the instrument's own 1-year daily moves, or beyond ±2% (equities, commodities), ±1% (FX), ±10bp (yields).">Moves since the last close beyond 2σ or fixed thresholds ⓘ</span></div>
+  <div class="sec-head"><h2>Out of the ordinary</h2><span class="muted small" data-tip="σ = the market's normal daily move (standard deviation over the past year). Flagged when today's move is beyond {{ mcfg.sigma }}σ, or the past week's move is beyond {{ mcfg.week_sigma }}σ of a normal week. Each market is judged against its own normal, so a 2% move in a calm index can qualify while a 5% move in Bitcoin may not.">Moves that are large for that market, today or this week ⓘ</span></div>
   {% if movers %}
   <div class="movers">
   {% for it in movers %}
-    <div class="mover {{ it.chg_1d|chgcls(it.is_yield) }}" data-tip="{{ it|tip }}">
-      <div class="top"><button class="name-btn nm" type="button" data-series="{{ it.id }}">{{ it.name }}</button><span class="muted small">{{ it|when }}</span></div>
-      <div class="lv">{{ it|level }} <span class="mv">{{ move(it) }}</span></div>
-      <div class="why">{% if it.z is not none %}<b>{{ '%.1f'|format(it.z|abs) }}σ</b> vs a normal day{% endif %}{% if it.mover_reasons|length and it.z is not none and (it.z|abs) < 2 %} · {{ it.mover_reasons[0] }}{% endif %}</div>
+    {% set wk = it.horizon == 'week' %}
+    {% set v = it.chg_1w if wk else it.chg_1d %}
+    <div class="mover {{ v|chgcls(it.is_yield) }}" data-tip="{{ it|tip }}">
+      <div class="top"><button class="name-btn nm" type="button" data-series="{{ it.id }}">{{ it.name }}</button><span class="muted small">{{ 'past week' if wk else it|when }}</span></div>
+      <div class="lv">{{ it|level }} <span class="mv {{ v|chgcls(it.is_yield) }}">{{ v|arrow if not it.is_yield }} {{ v|chg(it.is_yield) }}</span></div>
+      <div class="why"><b>{{ '%.1f'|format((it.z_w if wk else it.z)|abs) }}×</b> a normal {{ 'week' if wk else 'day' }}{% if not wk and it.chg_1w is not none %} · week {{ it.chg_1w|chg(it.is_yield) }}{% elif wk and it.chg_1d is not none %} · latest {{ it.chg_1d|chg(it.is_yield) }}{% endif %}</div>
       {{ sparkline(it.spark, 180, 28)|safe }}
     </div>
   {% endfor %}
   </div>
-  {% if more_movers %}<div class="near" style="margin-top:10px"><span class="muted small">Also unusual:</span>{% for it in more_movers %}<span data-tip="{{ it|tip }}">{{ it.name }} {{ move(it) }}{% if it.z is not none %} <span class="muted small">{{ '%.1f'|format(it.z|abs) }}σ</span>{% endif %}</span>{% endfor %}</div>{% endif %}
+  {% if more_movers %}<div class="near" style="margin-top:10px"><span class="muted small">Also unusual:</span>{% for it in more_movers %}<span data-tip="{{ it|tip }}">{{ it.name }} <span class="muted small">{{ it.mover_reasons|join(', ') }}</span></span>{% endfor %}</div>{% endif %}
   {% else %}
-  <p class="muted" style="margin:0 0 6px">Nothing unusual right now: every move is inside its normal range.</p>
-  {% if near %}<div class="near"><span class="muted small">Closest to unusual:</span>{% for it in near %}<span data-tip="{{ it|tip }}">{{ it.name }} {{ move(it) }} <span class="muted small">{{ '%.1f'|format(it.z|abs) }}σ</span></span>{% endfor %}</div>{% endif %}
+  <p class="muted" style="margin:0 0 6px">Nothing out of the ordinary: every market is moving within its normal range, today and over the week.</p>
+  {% if near %}<div class="near"><span class="muted small">Closest:</span>{% for it in near %}<span data-tip="{{ it|tip }}">{{ it.name }} {{ move(it) }} <span class="muted small">{{ '%.1f'|format(([it.z or 0, it.z_w or 0]|map('abs')|max)) }}σ</span></span>{% endfor %}</div>{% endif %}
   {% endif %}
 </section>
 
@@ -250,7 +302,7 @@ footer table{font-size:12px}
 
 <!-- Everything else, collapsed -->
 <details class="box" id="all-markets" data-remember>
-  <summary><h2>All markets</h2><span class="muted small">Bonds, FX, commodities, equities and policy rates · tap a name for a 1-year chart</span></summary>
+  <summary><h2>All markets</h2><span class="muted small">All {{ groups|map(attribute=1)|map('length')|sum }} markets and every central bank · tap a name for a 1-year chart</span></summary>
   <div class="body">
   <div class="tbl"><table>
     <thead><tr><th class="l">Market</th><th>Level</th><th data-tip="Change since the previous close (bp for yields)">Move</th><th data-tip="Move in standard deviations of normal daily moves">vs normal</th><th class="hide-sm">1 week</th><th>As of</th></tr></thead>
@@ -284,7 +336,7 @@ footer table{font-size:12px}
 </details>
 
 <section class="news" id="news">
-  <div class="sec-head"><h2>Headlines</h2><span class="muted small">Last 24h · deduplicated</span></div>
+  <div class="sec-head"><h2>Headlines</h2><span class="muted small">The {{ news|length }} most market-relevant stories of the last 24h</span></div>
   {% if news %}
   <ul>
   {% for n in news %}

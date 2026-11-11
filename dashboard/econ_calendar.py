@@ -309,6 +309,14 @@ def build_calendar(cfg: dict, cb_cfg: dict, state: dict, status: Status) -> tupl
         for key in [k for k, v in stored.items()
                     if key_is_future(v, now) and k not in fresh and v.get("id") != "ie_hicp"]:
             del stored[key]
+        # ...and past releases that never got a figure and the source has since
+        # withdrawn (e.g. a y/y rate not published because the year-ago figure
+        # doesn't exist), so they don't sit on the page as "not reported yet".
+        for key in [k for k, v in stored.items()
+                    if v.get("kind") == "data" and v.get("id") != "ie_hicp" and k not in fresh
+                    and v.get("actual") is None and not key_is_future(v, now)
+                    and now - dt.datetime.fromisoformat(v["time"]) > dt.timedelta(hours=3)]:
+            del stored[key]
 
     events = sorted(stored.values(), key=lambda e: e["time"])
     for ev in events:

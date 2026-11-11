@@ -25,7 +25,6 @@ from dashboard.store import History
 from dashboard.summary import summarise
 from dashboard.util import DUBLIN, Status, now_utc
 
-MAX_CARDS = 8  # unusual moves shown as cards; the rest are listed in one line
 ROOT = os.path.dirname(os.path.abspath(__file__))
 log = logging.getLogger("dashboard")
 
@@ -50,9 +49,12 @@ def save_json(path: str, obj) -> None:
         json.dump(obj, f, indent=1, sort_keys=True, default=str)
 
 
-def pick_movers(series: dict) -> list[dict]:
+def pick_movers(cfg: dict, series: dict) -> list[dict]:
+    """Unusual moves, most unusual first. The headline markets in the Key markets
+    panel get a small boost, so a 2.1σ S&P move outranks a 2.3σ wheat move."""
+    key = {sid for ids in cfg.get("key_markets", {}).values() for sid in ids}
     m = [v for k, v in series.items() if not k.startswith("_") and v.get("mover")]
-    return sorted(m, key=lambda v: abs(v.get("z") or 0), reverse=True)
+    return sorted(m, key=lambda v: v.get("z_rank", 0) * (1.2 if v["id"] in key else 1.0), reverse=True)
 
 
 def context(cfg, series, rates, events, cal_checks, news, summary, summary_source,
@@ -63,7 +65,7 @@ def context(cfg, series, rates, events, cal_checks, news, summary, summary_sourc
     groups = {g: [series[s["id"]] for s in cfg["series"] if s["group"] == g] for g in cfg["groups"]}
     if series.get("_2s10s"):
         groups["yields"].append({**series["_2s10s"], "available": True, "fetch_ok": True, "stale": False,
-                                 "group": "yields", "spread": True, "z": None,
+                                 "group": "yields", "spread": True, "z": None, "z_w": None,
                                  "chg_1w": None, "mover": False, "mover_reasons": []})
 
     # What just changed: releases and decisions from the last 36 hours up front,
@@ -76,18 +78,36 @@ def context(cfg, series, rates, events, cal_checks, news, summary, summary_sourc
             e["move_bp"] = round((e["actual"] - e["previous"]) * 100)
     fresh = [e for e in released if now - dt.datetime.fromisoformat(e["time"]) <= dt.timedelta(hours=36)]
     older = [e for e in released if e not in fresh]
-    week = [e for e in events if now < dt.datetime.fromisoformat(e["time"]) <= now + dt.timedelta(days=ccfg["countdown_days"])]
+    # Coming up and the countdown strip show only the big releases: second-tier
+    # data (`minor: true` in config) and minutes from banks outside key_banks are left out.
+    minor_ids = {r["id"] for r in ccfg["releases"] if r.get("minor")}
+    key_banks = cfg.get("key_banks", [])
+
+    def major(e):
+        if e["kind"] == "minutes":
+            return e["id"].removeprefix("cbmin_") in key_banks
+        return e["id"] not in minor_ids
+    week = [e for e in events if major(e) and
+            now < dt.datetime.fromisoformat(e["time"]) <= now + dt.timedelta(days=ccfg["countdown_days"])]
 
     js_fields = ("key", "time", "short", "name", "label", "country", "country_name", "flag", "kind",
                  "forecast_str", "previous_str", "actual_str", "actual")
     events_js = [{k: e.get(k) for k in js_fields} for e in events
-                 if dt.datetime.fromisoformat(e["time"]) > now - dt.timedelta(days=1)]
+                 if major(e) and dt.datetime.fromisoformat(e["time"]) > now - dt.timedelta(days=1)]
 
-    movers = pick_movers(series)
+    movers = pick_movers(cfg, series)
+    shown = cfg["movers"].get("max_shown", 5)
     # nothing unusual: show the moves closest to unusual instead, so the box is never empty
-    near = [] if movers else sorted((v for v in items.values() if v.get("z") is not None and not v.get("stale")),
-                                    key=lambda v: abs(v["z"]), reverse=True)[:4]
-    n_live = sum(1 for v in items.values() if v.get("basis") == "live")
+    def closeness(v):
+        return max(abs(v.get("z") or 0), abs(v.get("z_w") or 0))
+    near = [] if movers else sorted((v for v in items.values() if (v.get("z") is not None or v.get("z_w") is not None)
+                                     and not v.get("stale")), key=closeness, reverse=True)[:3]
+
+    # What's going on: the fixed headline markets, and the main central banks
+    key_panel = [(title, [series[sid] for sid in ids if sid in series])
+                 for title, ids in cfg.get("key_markets", {}).items()]
+    by_id = {b["id"]: b for b in rates["banks"]}
+    key_rates = [by_id[i] for i in key_banks if i in by_id]
 
     failed = [{"key": k, **v} for k, v in status.items() if not v.get("ok")]
     warnings = []
@@ -107,10 +127,10 @@ def context(cfg, series, rates, events, cal_checks, news, summary, summary_sourc
                     "source": v.get("source", "")}
                 for k, v in series.items() if v.get("chart")}
     return dict(
-        generated_at=now.isoformat(), warnings=warnings, n_live=n_live, n_series=len(items),
-        refresh=cfg.get("refresh", {}),
-        summary=summary, summary_source=summary_source, movers=movers[:MAX_CARDS],
-        more_movers=movers[MAX_CARDS:], near=near,
+        generated_at=now.isoformat(), warnings=warnings, refresh=cfg.get("refresh", {}),
+        summary=summary, summary_source=summary_source, movers=movers[:shown],
+        more_movers=movers[shown:], near=near, key_panel=key_panel, key_rates=key_rates,
+        mcfg=cfg["movers"],
         fresh=fresh, older=older, week=week,
         rate_changes=[b for b in rates["banks"] if b.get("recent_change") and
                       (now.date() - dt.date.fromisoformat(b["last_change"][:10])).days <= 1],
@@ -119,7 +139,7 @@ def context(cfg, series, rates, events, cal_checks, news, summary, summary_sourc
         events_js=events_js, rates=rates, groups=[
             ("Bonds", groups["yields"]), ("Currencies", groups["fx"]),
             ("Commodities", groups["commodities"]), ("Equities", groups["equities"])],
-        news=news[:cfg["news"].get("show", 8)], market_checks=market_checks,
+        news=news, market_checks=market_checks,
         calendar_checks=cal_checks, failed_sources=failed, chart_js=chart_js,
     )
 
@@ -167,9 +187,9 @@ def main() -> int:
             saved["events"][ev["key"]].pop("reaction", None)
     save_json(paths["calendar_state"], saved)
 
-    movers = pick_movers(series)
+    movers = pick_movers(cfg, series)[:cfg["movers"].get("max_shown", 5)]
     cache = load_json(paths["summary_cache"], {})
-    summary, summary_source, cache = summarise(series, movers, events, news, rates, cache)
+    summary, summary_source, cache = summarise(cfg, series, movers, events, news, rates, cache)
     save_json(paths["summary_cache"], cache)
 
     ctx = context(cfg, series, rates, events, cal_checks, news, summary, summary_source,
