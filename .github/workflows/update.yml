@@ -4,12 +4,15 @@ name: Update dashboard (every 15 min)
 # latest closes, live intraday quotes, policy rates, the economic calendar
 # (actuals, surprises, market reactions) and headlines.
 #
-# GitHub cron runs in UTC, so the schedule covers 04:00-22:45 UTC (both summer
+# GitHub cron runs in UTC, so the schedule covers 04:00-22:59 UTC (both summer
 # and winter) and the first step skips runs outside 06:00-23:00 Dublin.
-# Scheduled runs can start 5-20 minutes late when GitHub is busy.
+# The minutes avoid :00/:15/:30/:45, when GitHub is busiest and most likely to
+# delay or drop scheduled runs. Scheduled runs can still start 5-20 minutes late.
+# If the schedule ever stops entirely, editing this cron line and pushing
+# re-registers it with GitHub.
 on:
   schedule:
-    - cron: "*/15 4-22 * * 1-5"
+    - cron: "7,22,37,52 4-22 * * 1-5"
   workflow_dispatch:
 
 permissions:
