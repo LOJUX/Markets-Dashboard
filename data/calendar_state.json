@@ -164,54 +164,6 @@
    "tv_title": "Loan Prime Rate 1Y",
    "unit": "%"
   },
-  "cb_rba:2026-11-03": {
-   "actual": 4.85,
-   "actual_str": "4.85%",
-   "bank": "rba",
-   "category": "Central banks",
-   "country": "AU",
-   "country_name": "Australia",
-   "flag": "\ud83c\udde6\ud83c\uddfa",
-   "forecast": 4.85,
-   "forecast_str": "4.85%",
-   "id": "cb_rba",
-   "key": "cb_rba:2026-11-03",
-   "kind": "cb",
-   "label": "Reserve Bank of Australia rate decision",
-   "name": "Reserve Bank of Australia rate decision",
-   "period": "Nov. 2026",
-   "previous": 4.6,
-   "previous_str": "4.6%",
-   "reaction": {
-    "AS51": {
-     "basis": "close",
-     "change": 0.342119403827712,
-     "name": "ASX 200",
-     "prev": 8856.5,
-     "prev_date": "2026-11-02",
-     "value": 8886.799805,
-     "yield": false
-    },
-    "AUDUSD": {
-     "basis": "close",
-     "change": -0.8559071249715333,
-     "name": "AUD/USD",
-     "prev": 0.70288,
-     "prev_date": "2026-11-02",
-     "value": 0.696864,
-     "yield": false
-    }
-   },
-   "scale": null,
-   "short": "RBA decision",
-   "source": "central_banks.yaml (date) + TradingView (time, consensus, actual)",
-   "source_url": "http://www.rba.gov.au/",
-   "surprise": 0.0,
-   "surprise_str": "0%",
-   "time": "2026-11-03T03:30:00+00:00",
-   "tv_title": "RBA Interest Rate Decision",
-   "unit": "%"
-  },
   "cbmin_fed:2026-11-18": {
    "actual": null,
    "actual_str": "n/a",
@@ -563,6 +515,33 @@
    "tv_title": "S&P Global Manufacturing PMI Flash",
    "unit": null
   },
+  "ea_retail:2026-12-04T10:00": {
+   "actual": null,
+   "actual_str": "n/a",
+   "category": "Growth",
+   "country": "EU",
+   "country_name": "Euro area",
+   "flag": "\ud83c\uddea\ud83c\uddfa",
+   "forecast": null,
+   "forecast_str": "n/a",
+   "id": "ea_retail",
+   "key": "ea_retail:2026-12-04T10:00",
+   "kind": "data",
+   "label": "Euro area Retail sales m/m",
+   "name": "Retail sales m/m",
+   "period": "Oct. 2026",
+   "previous": -0.7,
+   "previous_str": "-0.7%",
+   "scale": null,
+   "short": "EA retail",
+   "source": "TradingView economic calendar",
+   "source_url": "https://ec.europa.eu/eurostat/",
+   "surprise": null,
+   "surprise_str": "n/a",
+   "time": "2026-12-04T10:00:00+00:00",
+   "tv_title": "Retail Sales MoM",
+   "unit": "%"
+  },
   "ea_unemp:2026-12-02T10:00": {
    "actual": null,
    "actual_str": "n/a",
@@ -588,53 +567,6 @@
    "surprise_str": "n/a",
    "time": "2026-12-02T10:00:00+00:00",
    "tv_title": "Unemployment Rate",
-   "unit": "%"
-  },
-  "ie_hicp:2026-11-03T11:00": {
-   "actual": 4.0,
-   "actual_str": "4%",
-   "category": "Inflation",
-   "country": "IE",
-   "country_name": "Ireland",
-   "flag": "\ud83c\uddee\ud83c\uddea",
-   "forecast": null,
-   "forecast_note": "No free consensus forecast for Irish HICP flash",
-   "forecast_str": "n/a",
-   "id": "ie_hicp",
-   "key": "ie_hicp:2026-11-03T11:00",
-   "kind": "data",
-   "label": "Ireland HICP flash y/y",
-   "name": "HICP flash y/y",
-   "period": "October 2026",
-   "previous": 3.9,
-   "previous_str": "3.9%",
-   "reaction": {
-    "EURUSD": {
-     "basis": "close",
-     "change": 0.34821656650398936,
-     "name": "EUR/USD",
-     "prev": 1.115685,
-     "prev_date": "2026-11-02",
-     "value": 1.11957,
-     "yield": false
-    },
-    "IE10Y": {
-     "basis": "close",
-     "change": 3.6699999999999733,
-     "name": "Ireland 10Y",
-     "prev": 3.4407,
-     "prev_date": "2026-11-02",
-     "value": 3.4774,
-     "yield": true
-    }
-   },
-   "scale": null,
-   "short": "IE HICP",
-   "source": "CSO release calendar + CSO press statement",
-   "source_url": "https://www.cso.ie/en/csolatestnews/releasecalendar/",
-   "surprise": null,
-   "surprise_str": "n/a",
-   "time": "2026-11-03T11:00:00+00:00",
    "unit": "%"
   },
   "ie_hicp:2026-11-30T11:00": {
@@ -671,8 +603,8 @@
    "country": "JP",
    "country_name": "Japan",
    "flag": "\ud83c\uddef\ud83c\uddf5",
-   "forecast": null,
-   "forecast_str": "n/a",
+   "forecast": 2.3,
+   "forecast_str": "2.3%",
    "id": "jp_ccpi",
    "key": "jp_ccpi:2026-11-19T23:30",
    "kind": "data",
@@ -860,8 +792,8 @@
    "country": "GB",
    "country_name": "UK",
    "flag": "\ud83c\uddec\ud83c\udde7",
-   "forecast": null,
-   "forecast_str": "n/a",
+   "forecast": 3.7,
+   "forecast_str": "3.7%",
    "id": "uk_cpi",
    "key": "uk_cpi:2026-11-18T07:00",
    "kind": "data",
@@ -897,6 +829,26 @@
    "period": "Q3 2026",
    "previous": 0.4,
    "previous_str": "0.4%",
+   "reaction": {
+    "GB10Y": {
+     "basis": "close",
+     "change": 5.109999999999992,
+     "name": "UK 10Y",
+     "prev": 5.2305,
+     "prev_date": "2026-11-11",
+     "value": 5.2816,
+     "yield": true
+    },
+    "GBPUSD": {
+     "basis": "close",
+     "change": -0.5390062208584623,
+     "name": "GBP/USD",
+     "prev": 1.334864,
+     "prev_date": "2026-11-11",
+     "value": 1.327669,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "UK GDP",
    "source": "TradingView economic calendar",
@@ -924,6 +876,26 @@
    "period": "Sep. 2026",
    "previous": 0,
    "previous_str": "0%",
+   "reaction": {
+    "GB10Y": {
+     "basis": "close",
+     "change": 5.109999999999992,
+     "name": "UK 10Y",
+     "prev": 5.2305,
+     "prev_date": "2026-11-11",
+     "value": 5.2816,
+     "yield": true
+    },
+    "GBPUSD": {
+     "basis": "close",
+     "change": -0.5390062208584623,
+     "name": "GBP/USD",
+     "prev": 1.334864,
+     "prev_date": "2026-11-11",
+     "value": 1.327669,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "UK GDP m/m",
    "source": "TradingView economic calendar",
@@ -1133,6 +1105,26 @@
    "period": "w/o Nov. 2, 2026",
    "previous": 191,
    "previous_str": "191K",
+   "reaction": {
+    "DXY": {
+     "basis": "close",
+     "change": 0.2526421046490368,
+     "name": "Dollar index (DXY)",
+     "prev": 102.910004,
+     "prev_date": "2026-11-11",
+     "value": 103.169998,
+     "yield": false
+    },
+    "US2Y": {
+     "basis": "close",
+     "change": 11.599999999999966,
+     "name": "US 2Y",
+     "prev": 4.748,
+     "prev_date": "2026-11-11",
+     "value": 4.864,
+     "yield": true
+    }
+   },
    "scale": "K",
    "short": "Claims",
    "source": "TradingView economic calendar",
