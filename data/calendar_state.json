@@ -904,6 +904,26 @@
    "period": "Sep. 2026",
    "previous": 4.7,
    "previous_str": "4.7%",
+   "reaction": {
+    "GB10Y": {
+     "basis": "close",
+     "change": 3.900000000000059,
+     "name": "UK 10Y",
+     "prev": 5.3515,
+     "prev_date": "2026-11-16",
+     "value": 5.3905,
+     "yield": true
+    },
+    "GBPUSD": {
+     "basis": "close",
+     "change": -0.07135020618166399,
+     "name": "GBP/USD",
+     "prev": 1.32165,
+     "prev_date": "2026-11-16",
+     "value": 1.320707,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "UK jobs",
    "source": "TradingView economic calendar",
@@ -931,6 +951,26 @@
    "period": "Sep. 2026",
    "previous": 3.8,
    "previous_str": "3.8%",
+   "reaction": {
+    "GB10Y": {
+     "basis": "close",
+     "change": 3.900000000000059,
+     "name": "UK 10Y",
+     "prev": 5.3515,
+     "prev_date": "2026-11-16",
+     "value": 5.3905,
+     "yield": true
+    },
+    "GBPUSD": {
+     "basis": "close",
+     "change": -0.07135020618166399,
+     "name": "GBP/USD",
+     "prev": 1.32165,
+     "prev_date": "2026-11-16",
+     "value": 1.320707,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "UK wages",
    "source": "TradingView economic calendar",
@@ -1369,6 +1409,26 @@
    "period": "Oct. 2026",
    "previous": 0.8,
    "previous_str": "0.8%",
+   "reaction": {
+    "DXY": {
+     "basis": "close",
+     "change": 0.0067561562504314665,
+     "name": "Dollar index (DXY)",
+     "prev": 103.550003,
+     "prev_date": "2026-11-16",
+     "value": 103.556999,
+     "yield": false
+    },
+    "US2Y": {
+     "basis": "close",
+     "change": -3.8000000000000256,
+     "name": "US 2Y",
+     "prev": 4.827,
+     "prev_date": "2026-11-16",
+     "value": 4.789,
+     "yield": true
+    }
+   },
    "scale": null,
    "short": "US retail",
    "source": "TradingView economic calendar",
