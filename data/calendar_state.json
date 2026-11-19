@@ -28,8 +28,8 @@
    "unit": "%"
   },
   "au_emp:2026-11-19T00:30": {
-   "actual": null,
-   "actual_str": "n/a",
+   "actual": -43.5,
+   "actual_str": "-43.5K",
    "category": "Jobs",
    "country": "AU",
    "country_name": "Australia",
@@ -42,14 +42,25 @@
    "label": "Australia Employment change",
    "name": "Employment change",
    "period": "Oct. 2026",
-   "previous": -39.3,
-   "previous_str": "-39.3K",
+   "previous": -36.4,
+   "previous_str": "-36.4K",
+   "reaction": {
+    "AS51": {
+     "basis": "close",
+     "change": -1.0360631166011935,
+     "name": "ASX 200",
+     "prev": 8821.799805,
+     "prev_date": "2026-11-18",
+     "value": 8730.400391,
+     "yield": false
+    }
+   },
    "scale": "K",
    "short": "AU jobs",
    "source": "TradingView economic calendar",
    "source_url": "http://www.abs.gov.au",
-   "surprise": null,
-   "surprise_str": "n/a",
+   "surprise": -68.5,
+   "surprise_str": "-68.5K",
    "time": "2026-11-19T00:30:00+00:00",
    "tv_title": "Employment Change",
    "unit": null
@@ -82,8 +93,8 @@
    "unit": "%"
   },
   "au_unemp:2026-11-19T00:30": {
-   "actual": null,
-   "actual_str": "n/a",
+   "actual": 4.9,
+   "actual_str": "4.9%",
    "category": "Jobs",
    "country": "AU",
    "country_name": "Australia",
@@ -98,12 +109,23 @@
    "period": "Oct. 2026",
    "previous": 4.7,
    "previous_str": "4.7%",
+   "reaction": {
+    "AS51": {
+     "basis": "close",
+     "change": -1.0360631166011935,
+     "name": "ASX 200",
+     "prev": 8821.799805,
+     "prev_date": "2026-11-18",
+     "value": 8730.400391,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "AU unemp.",
    "source": "TradingView economic calendar",
    "source_url": "http://www.abs.gov.au/",
-   "surprise": null,
-   "surprise_str": "n/a",
+   "surprise": 0.2,
+   "surprise_str": "+0.2%",
    "time": "2026-11-19T00:30:00+00:00",
    "tv_title": "Unemployment Rate",
    "unit": "%"
@@ -245,6 +267,34 @@
    "tv_title": "RBNZ Interest Rate Decision",
    "unit": "%"
   },
+  "cb_snb:2026-12-10": {
+   "actual": null,
+   "actual_str": "n/a",
+   "bank": "snb",
+   "category": "Central banks",
+   "country": "CH",
+   "country_name": "Switzerland",
+   "flag": "\ud83c\udde8\ud83c\udded",
+   "forecast": null,
+   "forecast_str": "n/a",
+   "id": "cb_snb",
+   "key": "cb_snb:2026-12-10",
+   "kind": "cb",
+   "label": "Swiss National Bank rate decision",
+   "name": "Swiss National Bank rate decision",
+   "period": "Q4 2026",
+   "previous": 0,
+   "previous_str": "0%",
+   "scale": null,
+   "short": "SNB decision",
+   "source": "central_banks.yaml (date) + TradingView (time, consensus, actual)",
+   "source_url": "https://www.snb.ch",
+   "surprise": null,
+   "surprise_str": "n/a",
+   "time": "2026-12-10T08:30:00+00:00",
+   "tv_title": "SNB Interest Rate Decision",
+   "unit": "%"
+  },
   "cbmin_fed:2026-11-18": {
    "actual": null,
    "actual_str": "n/a",
@@ -292,53 +342,6 @@
    "surprise_str": "n/a",
    "time": "2026-11-17T00:30:00+00:00",
    "unit": null
-  },
-  "cn_cpi:2026-11-09T01:30": {
-   "actual": 0.7,
-   "actual_str": "0.7%",
-   "category": "Inflation",
-   "country": "CN",
-   "country_name": "China",
-   "flag": "\ud83c\udde8\ud83c\uddf3",
-   "forecast": 0.8,
-   "forecast_str": "0.8%",
-   "id": "cn_cpi",
-   "key": "cn_cpi:2026-11-09T01:30",
-   "kind": "data",
-   "label": "China CPI y/y",
-   "name": "CPI y/y",
-   "period": "Oct. 2026",
-   "previous": 0.9,
-   "previous_str": "0.9%",
-   "reaction": {
-    "SHCOMP": {
-     "basis": "close",
-     "change": 0.3182906719414902,
-     "name": "Shanghai Composite",
-     "prev": 3649.177002,
-     "prev_date": "2026-11-06",
-     "value": 3660.791992,
-     "yield": false
-    },
-    "USDCNY": {
-     "basis": "close",
-     "change": -0.17942583732056816,
-     "name": "USD/CNY",
-     "prev": 6.688,
-     "prev_date": "2026-11-06",
-     "value": 6.676,
-     "yield": false
-    }
-   },
-   "scale": null,
-   "short": "CN CPI",
-   "source": "TradingView economic calendar",
-   "source_url": "http://www.stats.gov.cn/",
-   "surprise": -0.1,
-   "surprise_str": "-0.1%",
-   "time": "2026-11-09T01:30:00+00:00",
-   "tv_title": "Inflation Rate YoY",
-   "unit": "%"
   },
   "cn_cpi:2026-12-09T01:30": {
    "actual": null,
@@ -810,6 +813,26 @@
    "period": "Oct. 2026",
    "previous": 2.8,
    "previous_str": "2.8%",
+   "reaction": {
+    "GB10Y": {
+     "basis": "close",
+     "change": -8.700000000000063,
+     "name": "UK 10Y",
+     "prev": 5.3905,
+     "prev_date": "2026-11-17",
+     "value": 5.3035,
+     "yield": true
+    },
+    "GBPUSD": {
+     "basis": "close",
+     "change": 0.15449831280560655,
+     "name": "GBP/USD",
+     "prev": 1.318461,
+     "prev_date": "2026-11-17",
+     "value": 1.320498,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "UK core CPI",
    "source": "TradingView economic calendar",
@@ -837,6 +860,26 @@
    "period": "Oct. 2026",
    "previous": 3.5,
    "previous_str": "3.5%",
+   "reaction": {
+    "GB10Y": {
+     "basis": "close",
+     "change": -8.700000000000063,
+     "name": "UK 10Y",
+     "prev": 5.3905,
+     "prev_date": "2026-11-17",
+     "value": 5.3035,
+     "yield": true
+    },
+    "GBPUSD": {
+     "basis": "close",
+     "change": 0.15449831280560655,
+     "name": "GBP/USD",
+     "prev": 1.318461,
+     "prev_date": "2026-11-17",
+     "value": 1.320498,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "UK CPI",
    "source": "TradingView economic calendar",
