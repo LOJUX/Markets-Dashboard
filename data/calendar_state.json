@@ -53,6 +53,15 @@
      "prev_date": "2026-11-18",
      "value": 8730.400391,
      "yield": false
+    },
+    "AUDUSD": {
+     "basis": "close",
+     "change": -0.40016202333315043,
+     "name": "AUD/USD",
+     "prev": 0.673977,
+     "prev_date": "2026-11-18",
+     "value": 0.67128,
+     "yield": false
     }
    },
    "scale": "K",
@@ -117,6 +126,15 @@
      "prev": 8821.799805,
      "prev_date": "2026-11-18",
      "value": 8730.400391,
+     "yield": false
+    },
+    "AUDUSD": {
+     "basis": "close",
+     "change": -0.40016202333315043,
+     "name": "AUD/USD",
+     "prev": 0.673977,
+     "prev_date": "2026-11-18",
+     "value": 0.67128,
      "yield": false
     }
    },
@@ -184,8 +202,8 @@
    "unit": "%"
   },
   "cb_pboc:2026-11-20": {
-   "actual": null,
-   "actual_str": "n/a",
+   "actual": 3,
+   "actual_str": "3%",
    "bank": "pboc",
    "category": "Central banks",
    "country": "CN",
@@ -201,6 +219,17 @@
    "period": "Nov. 2026",
    "previous": 3,
    "previous_str": "3%",
+   "reaction": {
+    "SHCOMP": {
+     "basis": "close",
+     "change": -1.224948749355248,
+     "name": "Shanghai Composite",
+     "prev": 3577.616943,
+     "prev_date": "2026-11-19",
+     "value": 3533.792969,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "PBoC decision",
    "source": "central_banks.yaml (date) + TradingView (time, consensus, actual)",
@@ -532,8 +561,8 @@
    "country": "EU",
    "country_name": "Euro area",
    "flag": "\ud83c\uddea\ud83c\uddfa",
-   "forecast": null,
-   "forecast_str": "n/a",
+   "forecast": 52.8,
+   "forecast_str": "52.8",
    "id": "ea_pmi_m",
    "key": "ea_pmi_m:2026-11-23T09:00",
    "kind": "data",
@@ -634,8 +663,8 @@
    "unit": "%"
   },
   "jp_ccpi:2026-11-19T23:30": {
-   "actual": null,
-   "actual_str": "n/a",
+   "actual": 2.2,
+   "actual_str": "2.2%",
    "category": "Inflation",
    "country": "JP",
    "country_name": "Japan",
@@ -650,19 +679,39 @@
    "period": "Oct. 2026",
    "previous": 2.1,
    "previous_str": "2.1%",
+   "reaction": {
+    "JP10Y": {
+     "basis": "close",
+     "change": -4.999999999999982,
+     "name": "Japan 10Y",
+     "prev": 2.876,
+     "prev_date": "2026-11-18",
+     "value": 2.826,
+     "yield": true
+    },
+    "USDJPY": {
+     "basis": "close",
+     "change": -0.0771146814764978,
+     "name": "USD/JPY",
+     "prev": 159.503998,
+     "prev_date": "2026-11-18",
+     "value": 159.380997,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "JP core CPI",
    "source": "TradingView economic calendar",
    "source_url": "https://www.stat.go.jp",
-   "surprise": null,
-   "surprise_str": "n/a",
+   "surprise": -0.1,
+   "surprise_str": "-0.1%",
    "time": "2026-11-19T23:30:00+00:00",
    "tv_title": "Core Inflation Rate YoY",
    "unit": "%"
   },
   "jp_cpi:2026-11-19T23:30": {
-   "actual": null,
-   "actual_str": "n/a",
+   "actual": 2.3,
+   "actual_str": "2.3%",
    "category": "Inflation",
    "country": "JP",
    "country_name": "Japan",
@@ -678,12 +727,32 @@
    "period": "Oct. 2026",
    "previous": 2.1,
    "previous_str": "2.1%",
+   "reaction": {
+    "JP10Y": {
+     "basis": "close",
+     "change": -4.999999999999982,
+     "name": "Japan 10Y",
+     "prev": 2.876,
+     "prev_date": "2026-11-18",
+     "value": 2.826,
+     "yield": true
+    },
+    "USDJPY": {
+     "basis": "close",
+     "change": -0.0771146814764978,
+     "name": "USD/JPY",
+     "prev": 159.503998,
+     "prev_date": "2026-11-18",
+     "value": 159.380997,
+     "yield": false
+    }
+   },
    "scale": null,
    "short": "JP CPI",
    "source": "TradingView economic calendar",
    "source_url": "http://www.stat.go.jp",
-   "surprise": null,
-   "surprise_str": "n/a",
+   "surprise": 0.0,
+   "surprise_str": "0%",
    "time": "2026-11-19T23:30:00+00:00",
    "tv_title": "Inflation Rate YoY",
    "unit": "%"
@@ -984,6 +1053,33 @@
    "tv_title": "GDP MoM",
    "unit": "%"
   },
+  "uk_gdpm:2026-12-11T07:00": {
+   "actual": null,
+   "actual_str": "n/a",
+   "category": "Growth",
+   "country": "GB",
+   "country_name": "UK",
+   "flag": "\ud83c\uddec\ud83c\udde7",
+   "forecast": null,
+   "forecast_str": "n/a",
+   "id": "uk_gdpm",
+   "key": "uk_gdpm:2026-12-11T07:00",
+   "kind": "data",
+   "label": "UK GDP m/m",
+   "name": "GDP m/m",
+   "period": "Oct. 2026",
+   "previous": 0.2,
+   "previous_str": "0.2%",
+   "scale": null,
+   "short": "UK GDP m/m",
+   "source": "TradingView economic calendar",
+   "source_url": "http://www.ons.gov.uk/",
+   "surprise": null,
+   "surprise_str": "n/a",
+   "time": "2026-12-11T07:00:00+00:00",
+   "tv_title": "GDP MoM",
+   "unit": "%"
+  },
   "uk_pmi_m:2026-11-23T09:30": {
    "actual": null,
    "actual_str": "n/a",
@@ -1012,8 +1108,8 @@
    "unit": null
   },
   "uk_retail:2026-11-20T07:00": {
-   "actual": null,
-   "actual_str": "n/a",
+   "actual": 0.7,
+   "actual_str": "0.7%",
    "category": "Growth",
    "country": "GB",
    "country_name": "UK",
@@ -1026,14 +1122,14 @@
    "label": "UK Retail sales m/m",
    "name": "Retail sales m/m",
    "period": "Oct. 2026",
-   "previous": -0.4,
-   "previous_str": "-0.4%",
+   "previous": -0.6,
+   "previous_str": "-0.6%",
    "scale": null,
    "short": "UK retail",
    "source": "TradingView economic calendar",
    "source_url": "http://www.ons.gov.uk/",
-   "surprise": null,
-   "surprise_str": "n/a",
+   "surprise": 0.7,
+   "surprise_str": "+0.7%",
    "time": "2026-11-20T07:00:00+00:00",
    "tv_title": "Retail Sales MoM",
    "unit": "%"
@@ -1270,6 +1366,26 @@
    "period": "w/o Nov. 9, 2026",
    "previous": 202,
    "previous_str": "202K",
+   "reaction": {
+    "DXY": {
+     "basis": "close",
+     "change": 0.0385143458644821,
+     "name": "Dollar index (DXY)",
+     "prev": 103.860001,
+     "prev_date": "2026-11-18",
+     "value": 103.900002,
+     "yield": false
+    },
+    "US2Y": {
+     "basis": "close",
+     "change": -2.0999999999999908,
+     "name": "US 2Y",
+     "prev": 4.8,
+     "prev_date": "2026-11-18",
+     "value": 4.779,
+     "yield": true
+    }
+   },
    "scale": "K",
    "short": "Claims",
    "source": "TradingView economic calendar",
